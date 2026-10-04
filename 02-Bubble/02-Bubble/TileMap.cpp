@@ -91,10 +91,18 @@ bool TileMap::loadLevel(const string &levelFile)
 			//leer caracter hasta que sea espacio (while)
 			while (var <= line.size()) {
 				if (line[var] != ' ') {
-					num = num * 10 + line[var] - int('0');
+					int aux = 0;
+					if (line[var] == '-') {	// Estamos leyendo un -1
+						++var;
+						aux = -1;
+					}
+					else {
+						aux = line[var] - int('0');
+					}
+					num = num * 10 + aux;	// Añadimos 1 pq el tiled funciona así
 				}
 				else {
-					map[j * mapSize.x + i] = num;
+					map[j * mapSize.x + i] = num + 1;
 					num = 0;
 					++var;
 					break;
