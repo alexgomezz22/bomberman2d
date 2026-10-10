@@ -252,7 +252,7 @@ void Player::setPosition(const glm::vec2 &pos)
 
 bool Player::bombBlocks(const glm::ivec2& pos)
 {
-	std::vector<Bomb*>& bombs = bombManager->getBombs();   // <- línea nueva
+	std::vector<Bomb*>& bombs = bombManager->getBombs();
 	for (size_t i = 0; i < bombs.size(); i++)
 		if (bombs[i]->isSolid() && bombs[i]->overlaps(pos, glm::ivec2(32, 32)))
 			return true;
@@ -261,10 +261,17 @@ bool Player::bombBlocks(const glm::ivec2& pos)
 
 bool Player::bombLandDown()
 {
-	std::vector<Bomb*>& bombs = bombManager->getBombs();   // <- línea nueva
+	std::vector<Bomb*>& bombs = bombManager->getBombs();
 	for (size_t i = 0; i < bombs.size(); i++)
 	{
-		// ... el resto igual que lo tenías
+		if (!bombs[i]->isSolid() || !bombs[i]->overlaps(posPlayer, glm::ivec2(32, 32)))
+			continue;
+		int bombY = bombs[i]->getPosition().y;
+		if (posPlayer.y + 32 - bombY <= 8)   // los pies acaban de pasar la parte de arriba
+		{
+			posPlayer.y = bombY - 32;
+			return true;
+		}
 	}
 	return false;
 }
