@@ -8,6 +8,8 @@
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 96
 #define FALL_STEP 4
+#define BOMB_ANIM_SPEED 16
+#define BOMB_ANIM_TIME (4 * 1000 / BOMB_ANIM_SPEED)   // 250 ms
 
 
 enum PlayerAnims
@@ -32,9 +34,12 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
 	bJumping = false;
 	facingLeft = false;
+	bPuttingBomb = false;
+	bBWasDown = false;
+	bombTimer = 0;
 	spritesheet.loadFromFile("images/SPRITESteveFINAL.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.125f, 0.125f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(8);
+	sprite->setNumberAnimations(10);
 	//col * 0.125, fila * 0.125
 	
 	// Quieto izquierda: fila 0, col 1
@@ -75,17 +80,17 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite->addKeyframe(FALL_RIGHT, glm::vec2(0.125f, 0.250f));
 
 	//poner bomba
-	sprite->setAnimationSpeed(PUT_BOMB_RIGHT, 8);
-	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.000f, 0.375f));
-	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.125f, 0.375f));
-	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.250f, 0.375f));
-	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.375f, 0.375f));
+	sprite->setAnimationSpeed(PUT_BOMB_RIGHT, BOMB_ANIM_SPEED);
+	sprite->addKeyframe(PUT_BOMB_RIGHT, glm::vec2(0.000f, 0.375f));
+	sprite->addKeyframe(PUT_BOMB_RIGHT, glm::vec2(0.125f, 0.375f));
+	sprite->addKeyframe(PUT_BOMB_RIGHT, glm::vec2(0.250f, 0.375f));
+	sprite->addKeyframe(PUT_BOMB_RIGHT, glm::vec2(0.375f, 0.375f));
 	
-	sprite->setAnimationSpeed(PUT_BOMB_LEFT, 8);
-	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.000f, 0.750f));
-	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.125f, 0.750f));
-	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.250f, 0.750f));
+	sprite->setAnimationSpeed(PUT_BOMB_LEFT, BOMB_ANIM_SPEED);
 	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.375f, 0.750f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.250f, 0.750f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.125f, 0.750f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.000f, 0.750f));
 		
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
@@ -96,7 +101,32 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Player::update(int deltaTime)
 {
 	sprite->update(deltaTime);
-	if(Game::instance().getKey(GLFW_KEY_LEFT))
+	// Detectar el "click" de B (solo en el frame en que se pulsa)
+	bool bDown = Game::instance().getKey(GLFW_KEY_B);
+	if (bDown && !bBWasDown && !bPuttingBomb && !bJumping)
+	{
+		bPuttingBomb = true;
+		bombTimer = BOMB_ANIM_TIME;
+		sprite->changeAnimation(facingLeft ? PUT_BOMB_LEFT : PUT_BOMB_RIGHT);
+	}
+	bBWasDown = bDown;
+
+	// Terminar la animación tras 250 ms
+	if (bPuttingBomb)
+	{
+		bombTimer -= deltaTime;
+		if (bombTimer <= 0)
+		{
+			bPuttingBomb = false;
+			sprite->changeAnimation(facingLeft ? STAND_LEFT : STAND_RIGHT);
+		}
+	}
+
+	if (bPuttingBomb)
+	{
+		// quieto mientras dura la animación
+	}
+	else if(Game::instance().getKey(GLFW_KEY_LEFT))
 	{
 		facingLeft = true;
 		if(sprite->animation() != MOVE_LEFT)
@@ -122,11 +152,12 @@ void Player::update(int deltaTime)
 	}
 	else
 	{
-		if(sprite->animation() == MOVE_LEFT)
+		if (sprite->animation() == MOVE_LEFT)
 			sprite->changeAnimation(STAND_LEFT);
-		else if(sprite->animation() == MOVE_RIGHT)
+		else if (sprite->animation() == MOVE_RIGHT)
 			sprite->changeAnimation(STAND_RIGHT);
 	}
+
 	
 	if(bJumping)
 	{

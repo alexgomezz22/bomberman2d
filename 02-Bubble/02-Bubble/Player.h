@@ -25,6 +25,8 @@ public:
 	void setPosition(const glm::vec2 &pos);
 	
 private:
+	bool bPuttingBomb, bBWasDown;
+	int bombTimer;
 	bool bJumping;
 	bool facingLeft;
 	glm::ivec2 tileMapDispl, posPlayer;
