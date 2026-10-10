@@ -2,20 +2,19 @@
 
 #define BOMB_RANGE 4
 
-// Tamaño de la hoja Bomberman.png en tiles de 16x16
-#define SHEET_COLS 16   // TODO: ancho en px / 16
-#define SHEET_ROWS 40   // TODO: alto en px / 16
-#define GROW_STEP 60
+#define SHEET_W 128.f
+#define SHEET_H 16.f
+#define GROW_STEP 60   // ms que tarda el rayo en avanzar un tile
 
-// {col, fila} de cada pieza del rayo en la hoja. TODO: rellenar
-static const int FLAME_TILES[FLAME_TYPES][2] = {
-	{0, 5},  // FLAME_CENTER
-	{1, 5},  // FLAME_H
-	{2, 5},  // FLAME_V
-	{3, 5},  // FLAME_UP
-	{4, 5},  // FLAME_DOWN
-	{5, 5},  // FLAME_LEFT
-	{6, 5}   // FLAME_RIGHT
+// {x, y} en píxeles de cada pieza
+static const int FLAME_PIXELS[FLAME_TYPES][2] = {
+	{0, 0},    // FLAME_CENTER
+	{16, 0},   // FLAME_H
+	{32, 0},   // FLAME_V
+	{48, 0},   // FLAME_UP
+	{64, 0},   // FLAME_DOWN
+	{80, 0},   // FLAME_LEFT
+	{96, 0}    // FLAME_RIGHT
 };
 
 BombManager::BombManager()
@@ -39,15 +38,15 @@ void BombManager::init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderPro
 	map = tileMap;
 	texProgram = &shaderProgram;
 
-	flameSheet.loadFromFile("images/Bomberman.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	flameSheet.loadFromFile("images/explosion.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	flameSprite = Sprite::createSprite(glm::ivec2(BOMB_TILE, BOMB_TILE),
-		glm::vec2(1.f / SHEET_COLS, 1.f / SHEET_ROWS), &flameSheet, &shaderProgram);
+		glm::vec2(16.f / SHEET_W, 16.f / SHEET_H), &flameSheet, &shaderProgram);
 	flameSprite->setNumberAnimations(FLAME_TYPES);
 	for (int t = 0; t < FLAME_TYPES; t++)
 	{
 		flameSprite->setAnimationSpeed(t, 8);
-		flameSprite->addKeyframe(t, glm::vec2(FLAME_TILES[t][0] / float(SHEET_COLS),
-			FLAME_TILES[t][1] / float(SHEET_ROWS)));
+		flameSprite->addKeyframe(t, glm::vec2(FLAME_PIXELS[t][0] / SHEET_W,
+			FLAME_PIXELS[t][1] / SHEET_H));
 	}
 }
 
