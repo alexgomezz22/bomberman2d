@@ -28,10 +28,13 @@ Player::~Player()
 {
 	if (sprite != NULL)
 		delete sprite;
+	for (size_t i = 0; i < bombs.size(); i++)
+		delete bombs[i];
 }
 // Recommend to put all the enemies in the same spritesheet
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
+	texProgram = &shaderProgram;
 	bJumping = false;
 	facingLeft = false;
 	bPuttingBomb = false;
@@ -101,6 +104,11 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Player::update(int deltaTime)
 {
 	sprite->update(deltaTime);
+	
+	//Escribir bombas
+	for (size_t i = 0; i < bombs.size(); i++)
+		bombs[i]->update(deltaTime);
+
 	// Detectar el "click" de B (solo en el frame en que se pulsa)
 	bool bDown = Game::instance().getKey(GLFW_KEY_B);
 	if (bDown && !bBWasDown && !bPuttingBomb && !bJumping)
@@ -108,6 +116,13 @@ void Player::update(int deltaTime)
 		bPuttingBomb = true;
 		bombTimer = BOMB_ANIM_TIME;
 		sprite->changeAnimation(facingLeft ? PUT_BOMB_LEFT : PUT_BOMB_RIGHT);
+
+		int bx = ((posPlayer.x + 16) / 16) * 16;   // tile bajo el centro de Steve
+		int by = ((posPlayer.y + 31) / 16) * 16;   // tile de sus pies (última fila de píxeles de Steve)
+
+		Bomb* bomb = new Bomb();
+		bomb->init(tileMapDispl, glm::ivec2(bx, by), *texProgram);
+		bombs.push_back(bomb);
 	}
 	bBWasDown = bDown;
 
@@ -207,6 +222,9 @@ void Player::update(int deltaTime)
 
 void Player::render()
 {
+	for (size_t i = 0; i < bombs.size(); i++)
+		bombs[i]->render();
+	sprite->render();
 	sprite->render();
 }
 
