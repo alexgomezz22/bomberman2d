@@ -16,10 +16,16 @@ public:
 	void update(int deltaTime);
 	void render();
 
+	bool overlaps(const glm::ivec2& pos, const glm::ivec2& size) const;
+	glm::ivec2 getPosition() const { return posBomb; }
+	bool isSolid() const { return solid; }
+	void setSolid(bool s) { solid = s; }
+
 private:
 	glm::ivec2 tileMapDispl, posBomb;
 	Texture spritesheet;
 	Sprite* sprite;
+	bool solid;
 };
 
 #endif

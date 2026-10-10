@@ -104,29 +104,39 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Player::update(int deltaTime)
 {
 	sprite->update(deltaTime);
-	
-	//Escribir bombas
+
+	// Bombas: update y se vuelven sólidas cuando Steve ya no las solapa
 	for (size_t i = 0; i < bombs.size(); i++)
-		bombs[i]->update(deltaTime);
-
-	// Detectar el "click" de B (solo en el frame en que se pulsa)
-	bool bDown = Game::instance().getKey(GLFW_KEY_B);
-	if (bDown && !bBWasDown && !bPuttingBomb && !bJumping)
 	{
-		bPuttingBomb = true;
-		bombTimer = BOMB_ANIM_TIME;
-		sprite->changeAnimation(facingLeft ? PUT_BOMB_LEFT : PUT_BOMB_RIGHT);
+		bombs[i]->update(deltaTime);
+		if (!bombs[i]->isSolid() && !bombs[i]->overlaps(posPlayer, glm::ivec2(32, 32)))
+			bombs[i]->setSolid(true);
+	}
 
-		int bx = ((posPlayer.x + 16) / 16) * 16;   // tile bajo el centro de Steve
-		int by = ((posPlayer.y + 31) / 16) * 16;   // tile de sus pies (última fila de píxeles de Steve)
+	// Click de B
+	bool bDown = Game::instance().getKey(GLFW_KEY_B);
+	if (bDown && !bBWasDown && !bPuttingBomb)
+	{
+		int anim = sprite->animation();
+		bool inAir = bJumping || anim == JUMP_LEFT || anim == JUMP_RIGHT
+			|| anim == FALL_LEFT || anim == FALL_RIGHT;
 
+		if (!inAir)
+		{
+			bPuttingBomb = true;
+			bombTimer = BOMB_ANIM_TIME;
+			sprite->changeAnimation(facingLeft ? PUT_BOMB_LEFT : PUT_BOMB_RIGHT);
+		}
+
+		int bx = ((posPlayer.x + 16) / 16) * 16;
+		int by = ((posPlayer.y + 31) / 16) * 16;
 		Bomb* bomb = new Bomb();
 		bomb->init(tileMapDispl, glm::ivec2(bx, by), *texProgram);
 		bombs.push_back(bomb);
 	}
 	bBWasDown = bDown;
 
-	// Terminar la animación tras 250 ms
+	// Fin de la animación de poner bomba
 	if (bPuttingBomb)
 	{
 		bombTimer -= deltaTime;
@@ -137,29 +147,30 @@ void Player::update(int deltaTime)
 		}
 	}
 
+	// Movimiento horizontal
 	if (bPuttingBomb)
 	{
 		// quieto mientras dura la animación
 	}
-	else if(Game::instance().getKey(GLFW_KEY_LEFT))
+	else if (Game::instance().getKey(GLFW_KEY_LEFT))
 	{
 		facingLeft = true;
-		if(sprite->animation() != MOVE_LEFT)
+		if (sprite->animation() != MOVE_LEFT)
 			sprite->changeAnimation(MOVE_LEFT);
 		posPlayer.x -= 2;
-		if(map->collisionMoveLeft(posPlayer, glm::ivec2(32, 32)))
+		if (map->collisionMoveLeft(posPlayer, glm::ivec2(32, 32)) || bombBlocks(posPlayer))
 		{
 			posPlayer.x += 2;
 			sprite->changeAnimation(STAND_LEFT);
 		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_RIGHT))
+	else if (Game::instance().getKey(GLFW_KEY_RIGHT))
 	{
 		facingLeft = false;
-		if(sprite->animation() != MOVE_RIGHT)
+		if (sprite->animation() != MOVE_RIGHT)
 			sprite->changeAnimation(MOVE_RIGHT);
 		posPlayer.x += 2;
-		if(map->collisionMoveRight(posPlayer, glm::ivec2(32, 32)))
+		if (map->collisionMoveRight(posPlayer, glm::ivec2(32, 32)) || bombBlocks(posPlayer))
 		{
 			posPlayer.x -= 2;
 			sprite->changeAnimation(STAND_RIGHT);
@@ -173,30 +184,40 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(STAND_RIGHT);
 	}
 
-	
-	if(bJumping)
+	// Salto y caída
+	if (bJumping)
 	{
 		int jumpAnim = facingLeft ? JUMP_LEFT : JUMP_RIGHT;
 		if (sprite->animation() != jumpAnim)
 			sprite->changeAnimation(jumpAnim);
 
 		jumpAngle += JUMP_ANGLE_STEP;
-		if(jumpAngle == 180)
+		if (jumpAngle == 180)
 		{
 			bJumping = false;
 			posPlayer.y = startY;
 		}
 		else
 		{
+			int oldY = posPlayer.y;
 			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
-			if(jumpAngle > 90)
-				bJumping = !map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y);
+			if (jumpAngle <= 90 && bombBlocks(posPlayer))
+			{
+				posPlayer.y = oldY;
+				bJumping = false;
+			}
+			if (jumpAngle > 90)
+				bJumping = !(map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y) || bombLandDown());
 		}
 	}
 	else
 	{
 		posPlayer.y += FALL_STEP;
-		if (map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y))
+		bool onGround = map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y);
+		if (!onGround)
+			onGround = bombLandDown();
+
+		if (onGround)
 		{
 			int anim = sprite->animation();
 			if (anim == FALL_RIGHT || anim == JUMP_RIGHT || anim == FALL_LEFT || anim == JUMP_LEFT)
@@ -216,7 +237,7 @@ void Player::update(int deltaTime)
 				sprite->changeAnimation(fallAnim);
 		}
 	}
-	
+
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
 
@@ -224,7 +245,6 @@ void Player::render()
 {
 	for (size_t i = 0; i < bombs.size(); i++)
 		bombs[i]->render();
-	sprite->render();
 	sprite->render();
 }
 
@@ -237,6 +257,30 @@ void Player::setPosition(const glm::vec2 &pos)
 {
 	posPlayer = pos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+}
+
+bool Player::bombBlocks(const glm::ivec2& pos)
+{
+	for (size_t i = 0; i < bombs.size(); i++)
+		if (bombs[i]->isSolid() && bombs[i]->overlaps(pos, glm::ivec2(32, 32)))
+			return true;
+	return false;
+}
+
+bool Player::bombLandDown()
+{
+	for (size_t i = 0; i < bombs.size(); i++)
+	{
+		if (!bombs[i]->isSolid() || !bombs[i]->overlaps(posPlayer, glm::ivec2(32, 32)))
+			continue;
+		int bombY = bombs[i]->getPosition().y;
+		if (posPlayer.y + 32 - bombY <= 8)
+		{
+			posPlayer.y = bombY - 32;
+			return true;
+		}
+	}
+	return false;
 }
 
 

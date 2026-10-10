@@ -29,6 +29,11 @@ public:
 private:
 	bool bPuttingBomb, bBWasDown;
 	int bombTimer;
+	std::vector<Bomb*> bombs;
+	ShaderProgram* texProgram;
+
+	bool bombBlocks(const glm::ivec2& pos);
+	bool bombLandDown();
 	bool bJumping;
 	bool facingLeft;
 	glm::ivec2 tileMapDispl, posPlayer;
@@ -36,8 +41,6 @@ private:
 	Texture spritesheet;
 	Sprite *sprite;
 	TileMap *map;
-	std::vector<Bomb*> bombs;
-	ShaderProgram* texProgram;
 
 };
 

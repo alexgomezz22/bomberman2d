@@ -5,6 +5,7 @@
 Bomb::Bomb()
 {
 	sprite = NULL;
+	solid = false;
 }
 
 Bomb::~Bomb()
@@ -17,8 +18,9 @@ void Bomb::init(const glm::ivec2& tileMapPos, const glm::ivec2& pos, ShaderProgr
 {
 	tileMapDispl = tileMapPos;
 	posBomb = pos;
+	solid = false;
 
-	spritesheet.loadFromFile("images/bomb.png", TEXTURE_PIXEL_FORMAT_RGB);
+	spritesheet.loadFromFile("images/bomb.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(BOMB_SIZE, BOMB_SIZE), glm::vec2(1.f, 1.f), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(1);
 	sprite->setAnimationSpeed(0, 8);
@@ -36,4 +38,10 @@ void Bomb::update(int deltaTime)
 void Bomb::render()
 {
 	sprite->render();
+}
+
+bool Bomb::overlaps(const glm::ivec2& pos, const glm::ivec2& size) const
+{
+	return pos.x < posBomb.x + BOMB_SIZE && pos.x + size.x > posBomb.x &&
+		pos.y < posBomb.y + BOMB_SIZE && pos.y + size.y > posBomb.y;
 }
