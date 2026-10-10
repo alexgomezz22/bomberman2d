@@ -6,6 +6,7 @@
 #include "TileMap.h"
 #include <vector>
 #include "Bomb.h"
+#include "BombManager.h"
 
 
 // Player is basically a Sprite that represents the player. As such it has
@@ -25,13 +26,12 @@ public:
 	
 	void setTileMap(TileMap *tileMap);
 	void setPosition(const glm::vec2 &pos);
+	void setBombManager(BombManager* m) { bombManager = m; }
 	
 private:
 	bool bPuttingBomb, bBWasDown;
 	int bombTimer;
-	std::vector<Bomb*> bombs;
-	ShaderProgram* texProgram;
-
+	BombManager* bombManager;
 	bool bombBlocks(const glm::ivec2& pos);
 	bool bombLandDown();
 	bool bJumping;

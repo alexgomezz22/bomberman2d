@@ -22,19 +22,17 @@ Player::Player()
 {
 	sprite = NULL;
 	map = NULL;
+	bombManager = NULL;
 }
 
 Player::~Player()
 {
 	if (sprite != NULL)
 		delete sprite;
-	for (size_t i = 0; i < bombs.size(); i++)
-		delete bombs[i];
 }
 // Recommend to put all the enemies in the same spritesheet
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
-	texProgram = &shaderProgram;
 	bJumping = false;
 	facingLeft = false;
 	bPuttingBomb = false;
@@ -105,13 +103,10 @@ void Player::update(int deltaTime)
 {
 	sprite->update(deltaTime);
 
-	// Bombas: update y se vuelven sólidas cuando Steve ya no las solapa
+	std::vector<Bomb*>& bombs = bombManager->getBombs();
 	for (size_t i = 0; i < bombs.size(); i++)
-	{
-		bombs[i]->update(deltaTime);
 		if (!bombs[i]->isSolid() && !bombs[i]->overlaps(posPlayer, glm::ivec2(32, 32)))
 			bombs[i]->setSolid(true);
-	}
 
 	// Click de B
 	bool bDown = Game::instance().getKey(GLFW_KEY_B);
@@ -130,9 +125,7 @@ void Player::update(int deltaTime)
 
 		int bx = ((posPlayer.x + 16) / 16) * 16;
 		int by = ((posPlayer.y + 31) / 16) * 16;
-		Bomb* bomb = new Bomb();
-		bomb->init(tileMapDispl, glm::ivec2(bx, by), *texProgram);
-		bombs.push_back(bomb);
+		bombManager->addBomb(bx / 16, by / 16);
 	}
 	bBWasDown = bDown;
 
@@ -243,8 +236,6 @@ void Player::update(int deltaTime)
 
 void Player::render()
 {
-	for (size_t i = 0; i < bombs.size(); i++)
-		bombs[i]->render();
 	sprite->render();
 }
 
@@ -261,6 +252,7 @@ void Player::setPosition(const glm::vec2 &pos)
 
 bool Player::bombBlocks(const glm::ivec2& pos)
 {
+	std::vector<Bomb*>& bombs = bombManager->getBombs();   // <- línea nueva
 	for (size_t i = 0; i < bombs.size(); i++)
 		if (bombs[i]->isSolid() && bombs[i]->overlaps(pos, glm::ivec2(32, 32)))
 			return true;
@@ -269,20 +261,10 @@ bool Player::bombBlocks(const glm::ivec2& pos)
 
 bool Player::bombLandDown()
 {
+	std::vector<Bomb*>& bombs = bombManager->getBombs();   // <- línea nueva
 	for (size_t i = 0; i < bombs.size(); i++)
 	{
-		if (!bombs[i]->isSolid() || !bombs[i]->overlaps(posPlayer, glm::ivec2(32, 32)))
-			continue;
-		int bombY = bombs[i]->getPosition().y;
-		if (posPlayer.y + 32 - bombY <= 8)
-		{
-			posPlayer.y = bombY - 32;
-			return true;
-		}
+		// ... el resto igual que lo tenías
 	}
 	return false;
 }
-
-
-
-

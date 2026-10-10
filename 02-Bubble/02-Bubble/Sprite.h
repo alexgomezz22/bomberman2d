@@ -36,6 +36,8 @@ public:
 	
 	void setPosition(const glm::vec2 &pos);
 
+	void setScale(float s) { scale = s; }
+
 private:
 	Texture *texture;
 	ShaderProgram *shaderProgram;
@@ -47,6 +49,8 @@ private:
 	float timeAnimation;
 	glm::vec2 texCoordDispl;
 	vector<AnimKeyframes> animations;
+	float scale;
+	glm::vec2 quadSize;
 
 };
 

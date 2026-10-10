@@ -224,6 +224,12 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	
 	return false;
 }
+bool TileMap::isSolidTile(int col, int row) const
+{
+	if (col < 0 || row < 0 || col >= mapSize.x || row >= mapSize.y)
+		return true;                       // fuera del mapa = pared
+	return map[row * mapSize.x + col] != 0; // poner aquí la misma condición de sólido que usamos en collisionMoveDown
+}
 
 
 
