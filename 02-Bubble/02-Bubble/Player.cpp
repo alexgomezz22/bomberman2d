@@ -12,7 +12,7 @@
 
 enum PlayerAnims
 {
-	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, JUMP_RIGHT, FALL_RIGHT, JUMP_LEFT, FALL_LEFT
+	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, JUMP_RIGHT, FALL_RIGHT, JUMP_LEFT, FALL_LEFT, PUT_BOMB_LEFT, PUT_BOMB_RIGHT
 };
 
 
@@ -73,6 +73,19 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 	sprite->setAnimationSpeed(FALL_RIGHT, 8);
 	sprite->addKeyframe(FALL_RIGHT, glm::vec2(0.125f, 0.250f));
+
+	//poner bomba
+	sprite->setAnimationSpeed(PUT_BOMB_RIGHT, 8);
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.000f, 0.375f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.125f, 0.375f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.250f, 0.375f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.375f, 0.375f));
+	
+	sprite->setAnimationSpeed(PUT_BOMB_LEFT, 8);
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.000f, 0.750f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.125f, 0.750f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.250f, 0.750f));
+	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.375f, 0.750f));
 		
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
