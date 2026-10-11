@@ -115,27 +115,34 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(STAND_RIGHT);
 	}
 	
-	if(bJumping)
+	if(bJumping)	// The player is in the middle of a jump
 	{
-		int jumpAnim = facingLeft ? JUMP_LEFT : JUMP_RIGHT;
-		if (sprite->animation() != jumpAnim)
+		int jumpAnim = facingLeft ? JUMP_LEFT : JUMP_RIGHT;	
+		if (sprite->animation() != jumpAnim)		// If its not correctly draw, the animation changes to the correct one
 			sprite->changeAnimation(jumpAnim);
 
 		jumpAngle += JUMP_ANGLE_STEP;
-		if(jumpAngle == 180)
+		if(jumpAngle == 180)	// If the player reaches the highest moment of the jump
 		{
-			bJumping = false;
+			bJumping = false;		// then it stops jumping
 			posPlayer.y = startY;
 		}
 		else
 		{
-			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
+			int old_posPlayery = posPlayer.y;
+			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));		// Update the jump position
+			// Check if the player reaches a tile
+			if (map->collisionMoveUp(posPlayer, glm::ivec2(32, 32), &posPlayer.y))
+			{
+				posPlayer.y = old_posPlayery;
+				bJumping = false;
+			}
 			if(jumpAngle > 90)
 				bJumping = !map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y);
 		}
 	}
 	else
-	{
+	{	// The player isn't in the middle of a jump
 		posPlayer.y += FALL_STEP;
 		if (map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y))
 		{
