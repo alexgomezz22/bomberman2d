@@ -27,7 +27,9 @@ private:
 	void initShaders();
 
 private:
-	TileMap *map;
+	TileMap *map;			// Mapa de colisiones (dense layer)
+	TileMap *MiddleMap;		// Mapa del medio (cosas entre el personaje y el fondo)
+	TileMap *BackgroundMap;	// Mapa del fondo (paisaje)
 	Player *player;
 	ShaderProgram texProgram;
 	float currentTime;
