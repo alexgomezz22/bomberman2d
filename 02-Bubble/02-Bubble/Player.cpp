@@ -14,7 +14,7 @@
 
 enum PlayerAnims
 {
-	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, JUMP_RIGHT, FALL_RIGHT, JUMP_LEFT, FALL_LEFT, PUT_BOMB_LEFT, PUT_BOMB_RIGHT
+	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, JUMP_RIGHT, FALL_RIGHT, JUMP_LEFT, FALL_LEFT, PUT_BOMB_LEFT, PUT_BOMB_RIGHT, DIE_LEFT, DIE_RIGHT
 };
 
 
@@ -37,10 +37,12 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	facingLeft = false;
 	bPuttingBomb = false;
 	bBWasDown = false;
+	dead = false;
 	bombTimer = 0;
+	deathTimer = 0;
 	spritesheet.loadFromFile("images/SPRITESteveFINAL.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.125f, 0.125f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(10);
+	sprite->setNumberAnimations(12);
 	//col * 0.125, fila * 0.125
 	
 	// Quieto izquierda: fila 0, col 1
@@ -92,6 +94,19 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.250f, 0.750f));
 	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.125f, 0.750f));
 	sprite->addKeyframe(PUT_BOMB_LEFT, glm::vec2(0.000f, 0.750f));
+
+	//morir
+	sprite->setAnimationSpeed(DIE_LEFT, DEATH_ANIM_SPEED);
+	sprite->addKeyframe(DIE_LEFT, glm::vec2(0.000f, 0.875f));
+	sprite->addKeyframe(DIE_LEFT, glm::vec2(0.125f, 0.875f));
+	sprite->addKeyframe(DIE_LEFT, glm::vec2(0.250f, 0.875f));
+	sprite->addKeyframe(DIE_LEFT, glm::vec2(0.375f, 0.875f));
+
+	sprite->setAnimationSpeed(DIE_RIGHT, DEATH_ANIM_SPEED);
+	sprite->addKeyframe(DIE_RIGHT, glm::vec2(0.000f, 0.500f));
+	sprite->addKeyframe(DIE_RIGHT, glm::vec2(0.125f, 0.500f));
+	sprite->addKeyframe(DIE_RIGHT, glm::vec2(0.250f, 0.500f));
+	sprite->addKeyframe(DIE_RIGHT, glm::vec2(0.375f, 0.500f));
 		
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
@@ -101,6 +116,14 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 void Player::update(int deltaTime)
 {
+	if (dead)
+	{
+		if (deathTimer < DEATH_LAST_FRAME_TIME)
+			sprite->update(deltaTime);
+		deathTimer += deltaTime;
+		return;
+	}
+
 	sprite->update(deltaTime);
 
 	std::vector<Bomb*>& bombs = bombManager->getBombs();
@@ -231,6 +254,10 @@ void Player::update(int deltaTime)
 		}
 	}
 
+	glm::ivec2 hitPos(posPlayer.x + HIT_OFFSET_X, posPlayer.y + HIT_OFFSET_Y);
+	if (bombManager->isInExplosion(hitPos, glm::ivec2(HIT_W, HIT_H)))
+		die();
+
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
 
@@ -274,4 +301,24 @@ bool Player::bombLandDown()
 		}
 	}
 	return false;
+}
+
+void Player::die()
+{
+	dead = true;
+	deathTimer = 0;
+	bPuttingBomb = false;
+	sprite->changeAnimation(facingLeft ? DIE_LEFT : DIE_RIGHT);
+}
+
+void Player::respawn(const glm::vec2 &pos)
+{
+	dead = false;
+	deathTimer = 0;
+	bJumping = false;
+	bPuttingBomb = false;
+	bBWasDown = false;
+	facingLeft = false;
+	sprite->changeAnimation(STAND_RIGHT);
+	setPosition(pos);
 }

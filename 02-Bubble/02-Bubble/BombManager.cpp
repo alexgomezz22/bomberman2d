@@ -167,3 +167,10 @@ bool BombManager::isInExplosion(const glm::ivec2& pos, const glm::ivec2& size) c
 	}
 	return false;
 }
+
+void BombManager::clear()
+{
+	for (size_t i = 0; i < bombs.size(); i++)
+		delete bombs[i];
+	bombs.clear();
+}
