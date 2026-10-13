@@ -180,14 +180,14 @@ void Player::update(int deltaTime)
 	// Salto y caída
 	if (bJumping)
 	{
-		int jumpAnim = facingLeft ? JUMP_LEFT : JUMP_RIGHT;
-		if (sprite->animation() != jumpAnim)
+		int jumpAnim = facingLeft ? JUMP_LEFT : JUMP_RIGHT;	
+		if (sprite->animation() != jumpAnim)		// If its not correctly draw, the animation changes to the correct one
 			sprite->changeAnimation(jumpAnim);
 
 		jumpAngle += JUMP_ANGLE_STEP;
 		if (jumpAngle == 180)
 		{
-			bJumping = false;
+			bJumping = false;		// then it stops jumping
 			posPlayer.y = startY;
 		}
 		else
@@ -204,7 +204,7 @@ void Player::update(int deltaTime)
 		}
 	}
 	else
-	{
+	{	// The player isn't in the middle of a jump
 		posPlayer.y += FALL_STEP;
 		bool onGround = map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y);
 		if (!onGround)
