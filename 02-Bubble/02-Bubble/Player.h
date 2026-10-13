@@ -40,7 +40,9 @@ public:
 	bool isDead() const { return dead; }
 	bool isDeathFinished() const { return dead && deathTimer >= DEATH_ANIM_TIME + 500; }
 	void respawn(const glm::vec2& pos);
-	
+	void increaseMaxBombs() { maxBombs++; }
+	int getMaxBombs() const { return maxBombs; }
+
 private:
 	bool bPuttingBomb, bBWasDown;
 	int bombTimer;
@@ -57,6 +59,7 @@ private:
 	bool dead;
 	int deathTimer;
 	void die();
+	int maxBombs;
 };
 
 

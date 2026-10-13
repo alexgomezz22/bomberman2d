@@ -50,17 +50,6 @@ void BombManager::init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderPro
 	}
 }
 
-void BombManager::addBomb(int col, int row)
-{
-	for (size_t i = 0; i < bombs.size(); i++)   // no dos bombas en el mismo tile
-		if (bombs[i]->getState() == BOMB_FUSE && bombs[i]->getTile() == glm::ivec2(col, row))
-			return;
-
-	Bomb* b = new Bomb();
-	b->init(tileMapDispl, col, row, *texProgram);
-	bombs.push_back(b);
-}
-
 static void addFlame(std::vector<FlameCell>& v, int col, int row, int type, int dist)
 {
 	FlameCell c;
@@ -173,4 +162,25 @@ void BombManager::clear()
 	for (size_t i = 0; i < bombs.size(); i++)
 		delete bombs[i];
 	bombs.clear();
+}
+bool BombManager::addBomb(int col, int row)
+{
+	for (size_t i = 0; i < bombs.size(); i++)   // no dos bombas en el mismo tile
+		if (bombs[i]->getState() == BOMB_FUSE && bombs[i]->getTile() == glm::ivec2(col, row))
+			return false;
+
+	Bomb* b = new Bomb();
+	b->init(tileMapDispl, col, row, *texProgram);
+	bombs.push_back(b);
+	return true;
+}
+
+// Bombas con la mecha encendida (las que ya han explotado no cuentan)
+int BombManager::countActive() const
+{
+	int n = 0;
+	for (size_t i = 0; i < bombs.size(); i++)
+		if (bombs[i]->getState() == BOMB_FUSE)
+			n++;
+	return n;
 }

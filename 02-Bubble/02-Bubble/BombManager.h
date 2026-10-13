@@ -12,13 +12,14 @@ public:
 	~BombManager();
 
 	void init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram);
-	void addBomb(int col, int row);
 	void update(int deltaTime);
 	void render();
 
 	std::vector<Bomb*>& getBombs() { return bombs; }
 	bool isInExplosion(const glm::ivec2& pos, const glm::ivec2& size) const;
 	void clear();
+	bool addBomb(int col, int row);
+	int countActive() const;
 
 private:
 	void detonate(Bomb* b);

@@ -36,6 +36,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	bJumping = false;
 	facingLeft = false;
 	bPuttingBomb = false;
+	maxBombs = 1;
 	bBWasDown = false;
 	dead = false;
 	bombTimer = 0;
@@ -132,23 +133,25 @@ void Player::update(int deltaTime)
 			bombs[i]->setSolid(true);
 
 	// Click de B
+	// Click de B
 	bool bDown = Game::instance().getKey(GLFW_KEY_B);
-	if (bDown && !bBWasDown && !bPuttingBomb)
+	if (bDown && !bBWasDown && !bPuttingBomb && bombManager->countActive() < maxBombs)
 	{
-		int anim = sprite->animation();
-		bool inAir = bJumping || anim == JUMP_LEFT || anim == JUMP_RIGHT
-			|| anim == FALL_LEFT || anim == FALL_RIGHT;
+		int col = (posPlayer.x + 16) / 16;
+		int row = (posPlayer.y + 31) / 16;
 
-		if (!inAir)
+		if (bombManager->addBomb(col, row))   // false si ya hay una bomba en ese tile
 		{
-			bPuttingBomb = true;
-			bombTimer = BOMB_ANIM_TIME;
-			sprite->changeAnimation(facingLeft ? PUT_BOMB_LEFT : PUT_BOMB_RIGHT);
+			int anim = sprite->animation();
+			bool inAir = bJumping || anim == JUMP_LEFT || anim == JUMP_RIGHT
+				|| anim == FALL_LEFT || anim == FALL_RIGHT;
+			if (!inAir)
+			{
+				bPuttingBomb = true;
+				bombTimer = BOMB_ANIM_TIME;
+				sprite->changeAnimation(facingLeft ? PUT_BOMB_LEFT : PUT_BOMB_RIGHT);
+			}
 		}
-
-		int bx = ((posPlayer.x + 16) / 16) * 16;
-		int by = ((posPlayer.y + 31) / 16) * 16;
-		bombManager->addBomb(bx / 16, by / 16);
 	}
 	bBWasDown = bDown;
 
