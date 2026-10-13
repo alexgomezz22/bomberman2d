@@ -194,7 +194,7 @@ void Player::update(int deltaTime)
 		{
 			int oldY = posPlayer.y;
 			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
-			if (jumpAngle <= 90 && bombBlocks(posPlayer))
+			if (jumpAngle <= 90 && (bombBlocks(posPlayer) || map->collisionMoveUp(posPlayer, glm::ivec2(32,32), &posPlayer.y)))
 			{
 				posPlayer.y = oldY;
 				bJumping = false;
