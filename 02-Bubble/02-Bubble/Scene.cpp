@@ -38,6 +38,8 @@ void Scene::init()
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
+	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), map, texProgram);
+	player->setBombManager(&bombManager);
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH), float(SCREEN_HEIGHT), 0.f);
 	currentTime = 0.0f;
 }
@@ -46,6 +48,7 @@ void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
 	player->update(deltaTime);
+	bombManager.update(deltaTime);
 }
 
 void Scene::render()
@@ -61,6 +64,7 @@ void Scene::render()
 	BackgroundMap->render();
 	MiddleMap->render();
 	map->render();
+	bombManager.render();
 	player->render();
 }
 
