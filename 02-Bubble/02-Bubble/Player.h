@@ -42,6 +42,9 @@ public:
 	void respawn(const glm::vec2& pos);
 	void increaseMaxBombs() { maxBombs++; }
 	int getMaxBombs() const { return maxBombs; }
+	void kill() { if (!dead) die(); }
+	glm::ivec2 getHitPos() const { return glm::ivec2(posPlayer.x + HIT_OFFSET_X, posPlayer.y + HIT_OFFSET_Y); }
+	glm::ivec2 getHitSize() const { return glm::ivec2(HIT_W, HIT_H); }
 
 private:
 	bool bPuttingBomb, bBWasDown;
