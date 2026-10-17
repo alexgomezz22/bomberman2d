@@ -146,6 +146,7 @@ void Zombie::render()
 void Zombie::setPosition(const glm::vec2& pos)
 {
 	posZombie = pos;
+	spawnPos = pos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posZombie.x), float(tileMapDispl.y + posZombie.y)));
 }
 
@@ -157,4 +158,15 @@ glm::ivec2 Zombie::getHitPos() const
 glm::ivec2 Zombie::getHitSize() const
 {
 	return glm::ivec2(ZOMBIE_SIZE - 2 * HIT_MARGIN_X, ZOMBIE_SIZE - HIT_MARGIN_Y);
+}
+
+void Zombie::respawn()
+{
+	dead = false;
+	dying = false;
+	dyingTimer = 0;
+	moveTick = 0;
+	dir = -1;
+	sprite->changeAnimation(WALK_LEFT);
+	setPosition(spawnPos);
 }

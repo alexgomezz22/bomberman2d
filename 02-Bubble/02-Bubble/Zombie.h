@@ -25,6 +25,7 @@ public:
 	bool isAlive() const { return !dying && !dead; }   // false en cuanto le toca el rayo
 	glm::ivec2 getHitPos() const;
 	glm::ivec2 getHitSize() const;
+	void respawn();
 
 private:
 	glm::ivec2 tileMapDispl, posZombie;
@@ -37,7 +38,7 @@ private:
 	bool dying;
 	int dyingTimer;
 	int moveTick;
-
+	glm::vec2 spawnPos;
 };
 
 #endif

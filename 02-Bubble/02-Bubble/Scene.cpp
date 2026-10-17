@@ -96,6 +96,7 @@ void Scene::update(int deltaTime)
 			lives = 3;
 			bombManager.clear();
 			player->respawn(spawnPos);
+			zombie->respawn();
 			state = STATE_INTRO;
 			stateTimer = 0;
 		}
@@ -125,6 +126,7 @@ void Scene::update(int deltaTime)
 		if (lives > 0)
 		{
 			player->respawn(spawnPos);
+			zombie->respawn();
 			state = STATE_INTRO;
 		}
 		else
