@@ -7,6 +7,7 @@
 #include "TileMap.h"
 #include "Player.h"
 #include "BombManager.h"
+#include "Zombie.h"
 
 
 // Scene contains all the entities of our game.
@@ -33,6 +34,7 @@ private:
 	TileMap *MiddleMap;		// Mapa del medio (cosas entre el personaje y el fondo)
 	TileMap *BackgroundMap;	// Mapa del fondo (paisaje)
 	Player *player;
+	Zombie* zombie;
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;

@@ -18,6 +18,7 @@ Scene::Scene()
 	player = NULL;
 	introSprite = NULL;
 	gameOverSprite = NULL;
+	zombie = NULL;
 	lives = 3;
 }
 
@@ -30,6 +31,7 @@ Scene::~Scene()
 		delete player;
 	if (introSprite != NULL) delete introSprite;
 	if (gameOverSprite != NULL) delete gameOverSprite;
+	if (zombie != NULL) delete zombie;
 }
 
 void Scene::init()
@@ -46,6 +48,11 @@ void Scene::init()
 
 	player->setTileMap(map);
 	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), map, texProgram);
+	zombie = new Zombie();
+	zombie->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+	zombie->setPosition(glm::vec2(19 * map->getTileSize(), 5 * map->getTileSize()));  // MARCAR POS DEL ZOMBIE
+	zombie->setTileMap(map);
+	zombie->setBombManager(&bombManager);
 	player->setBombManager(&bombManager);
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH), float(SCREEN_HEIGHT), 0.f);
 	currentTime = 0.0f;
@@ -100,6 +107,16 @@ void Scene::update(int deltaTime)
 	player->update(deltaTime);
 	bombManager.update(deltaTime);
 
+	zombie->update(deltaTime);
+
+	if (zombie->isAlive() && !player->isDead())
+	{
+		glm::ivec2 p = player->getHitPos(), ps = player->getHitSize();
+		glm::ivec2 z = zombie->getHitPos(), zs = zombie->getHitSize();
+		if (p.x < z.x + zs.x && p.x + ps.x > z.x && p.y < z.y + zs.y && p.y + ps.y > z.y)
+			player->kill();
+	}
+
 	if (player->isDeathFinished())
 	{
 		lives--;
@@ -132,6 +149,7 @@ void Scene::render()
 	MiddleMap->render();
 	map->render();
 	bombManager.render();
+	zombie->render();
 	player->render();
 }
 
