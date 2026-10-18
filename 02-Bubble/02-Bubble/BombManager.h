@@ -12,7 +12,6 @@ public:
 	~BombManager();
 
 	void init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram, int mapSize_x);
-	void addBomb(int col, int row);
 	void update(int deltaTime);
 	void render();
 
