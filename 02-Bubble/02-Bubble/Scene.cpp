@@ -51,20 +51,23 @@ void Scene::init()
 	player->setBombManager(&bombManager);
 	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), NULL, texProgram, 0);
 
+	// Pantallas de intro de cada nivel (imágenes de 64x64, dibujadas a 448x448 y centradas)
 	for (int i = 0; i < NUM_LEVELS; i++)
 	{
 		char path[64];
 		sprintf(path, "images/level%d.png", i + 1);
 		introTex[i].loadFromFile(path, TEXTURE_PIXEL_FORMAT_RGBA);
-		introSprite[i] = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH, SCREEN_HEIGHT), glm::vec2(1.f, 1.f), &introTex[i], &texProgram);
+		introTex[i].setMagFilter(GL_NEAREST);                 // <- nuevo
+		introTex[i].setMinFilter(GL_NEAREST);                 // <- nuevo
+		introSprite[i] = Sprite::createSprite(glm::ivec2(448, 448), glm::vec2(1.f, 1.f), &introTex[i], &texProgram);   // <- 448x448
 		introSprite[i]->setNumberAnimations(1);
 		introSprite[i]->setAnimationSpeed(0, 8);
 		introSprite[i]->addKeyframe(0, glm::vec2(0.f, 0.f));
 		introSprite[i]->changeAnimation(0);
-		introSprite[i]->setPosition(glm::vec2(0.f, 0.f));
+		introSprite[i]->setPosition(glm::vec2(96.f, 16.f));   // <- centrada
 	}
 
-	// Pantalla de game over
+	// Pantalla de game over (sin cambios)
 	gameOverTex.loadFromFile("images/gameover.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	gameOverSprite = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH, SCREEN_HEIGHT), glm::vec2(1.f, 1.f), &gameOverTex, &texProgram);
 	gameOverSprite->setNumberAnimations(1);
@@ -73,7 +76,7 @@ void Scene::init()
 	gameOverSprite->changeAnimation(0);
 	gameOverSprite->setPosition(glm::vec2(0.f, 0.f));
 
-	loadLevel(0);
+	loadLevel(0);   // carga mapas, Steve y zombies del nivel 1, y pone el estado en INTRO
 }
 
 void Scene::update(int deltaTime)
@@ -144,15 +147,15 @@ void Scene::render()
 {
 	glm::mat4 modelview;
 	texProgram.use();
-
-	if (state == STATE_INTRO) { introSprite[currentLevel]->render(); return; }
-	if (state == STATE_GAMEOVER) { gameOverSprite->render(); return; }
-
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 	modelview = glm::mat4(1.0f);
 	texProgram.setUniformMatrix4f("modelview", modelview);
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+
+	if (state == STATE_INTRO) { introSprite[currentLevel]->render(); return; }
+	if (state == STATE_GAMEOVER) { gameOverSprite->render();            return; }
+
 	BackgroundMap->render();
 	MiddleMap->render();
 	map->render();
