@@ -17,7 +17,7 @@
 
 static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los ultimos dos la pos de la puerta
 	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} }, 26, 24 },
-	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 17, 2, { {14, 7}, {28, 4} }, -1, -1 },
+	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {14, 7}, {28, 4} }, -1, -1 },
 	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 1, 20, 1, { {19, 5} } },
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 20, 1, { {19, 5} } },
 	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 1, 20, 1, { {19, 5} } }
