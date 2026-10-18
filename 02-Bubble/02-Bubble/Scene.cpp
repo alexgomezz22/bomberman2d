@@ -9,12 +9,15 @@
 #define SCREEN_X 32
 #define SCREEN_Y 16
 
-#define INIT_PLAYER_X_TILES 1
-#define INIT_PLAYER_Y_TILES 20
+//#define INIT_PLAYER_X_TILES 1
+//#define INIT_PLAYER_Y_TILES 20
 
-static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos
-	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} } },
-	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {14, 7}, {28, 4} } },
+#define DOOR_OPEN_TOP 344
+#define DOOR_OPEN_BOTTOM 345
+
+static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los ultimos dos la pos de la puerta
+	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} }, 26, 24 },
+	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 17, 2, { {14, 7}, {28, 4} }, -1, -1 },
 	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 1, 20, 1, { {19, 5} } },
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 20, 1, { {19, 5} } },
 	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 1, 20, 1, { {19, 5} } }
@@ -28,6 +31,7 @@ Scene::Scene()
 	for (int i = 0; i < NUM_LEVELS; i++) introSprite[i] = NULL;
 	lives = 3;
 	currentLevel = 0;
+	doorOpen = false;
 }
 
 Scene::~Scene()
@@ -119,14 +123,34 @@ void Scene::update(int deltaTime)
 		}
 	}
 
-	// Nivel superado (si Steve ha muerto a la vez, cuenta la muerte)
-	if (!zombies.empty() && allDead && !player->isDead())
+	const LevelData& L = LEVELS[currentLevel];
+
+	// Todos los zombies muertos: se abre la puerta (o se pasa directo si el nivel no tiene)
+	if (!zombies.empty() && allDead && !player->isDead() && !doorOpen)
 	{
-		if (currentLevel + 1 < NUM_LEVELS)
-			loadLevel(currentLevel + 1);
-		else
-			loadLevel(0);          // TODO: pantalla de victoria
-		return;
+		if (L.doorCol < 0)
+		{
+			loadLevel(currentLevel + 1 < NUM_LEVELS ? currentLevel + 1 : 0);
+			return;
+		}
+		doorOpen = true;
+		map->setTile(L.doorCol, L.doorRow, 0);      // ya no es sólida
+		map->setTile(L.doorCol, L.doorRow + 1, 0);
+		MiddleMap->setTile(L.doorCol, L.doorRow, DOOR_OPEN_TOP + 1);      // se dibuja abierta
+		MiddleMap->setTile(L.doorCol, L.doorRow + 1, DOOR_OPEN_BOTTOM + 1);
+	}
+
+	// Steve toca la puerta abierta: siguiente nivel
+	if (doorOpen && !player->isDead())
+	{
+		int ts = map->getTileSize();
+		glm::ivec2 p = player->getHitPos(), ps = player->getHitSize();
+		int dx = L.doorCol * ts, dy = L.doorRow * ts;
+		if (p.x < dx + ts && p.x + ps.x > dx && p.y < dy + 2 * ts && p.y + ps.y > dy)
+		{
+			loadLevel(currentLevel + 1 < NUM_LEVELS ? currentLevel + 1 : 0);   // falta pantalla de victoria tras el 5
+			return;
+		}
 	}
 
 	if (player->isDeathFinished())
@@ -196,6 +220,7 @@ void Scene::initShaders()
 
 void Scene::loadLevel(int n)
 {
+	doorOpen = false;
 	currentLevel = n;
 	const LevelData& L = LEVELS[n];
 	glm::ivec2 disp(SCREEN_X, SCREEN_Y);

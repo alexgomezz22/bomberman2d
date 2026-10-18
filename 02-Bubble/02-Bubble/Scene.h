@@ -19,6 +19,7 @@ struct LevelData
 	int playerCol, playerRow;
 	int nZombies;
 	int zombieTiles[8][2];   // {columna, fila}
+	int doorCol, doorRow;     // tile de arriba de la puerta; -1 si el nivel no tiene puerta
 };
 
 
@@ -62,6 +63,7 @@ private:
 	std::vector<Zombie*> zombies;      
 	Texture introTex[NUM_LEVELS];      
 	Sprite* introSprite[NUM_LEVELS];   
+	bool doorOpen;
 
 };
 
