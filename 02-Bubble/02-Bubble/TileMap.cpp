@@ -271,5 +271,6 @@ bool TileMap::collisionMoveUp(const glm::ivec2& pos, const glm::ivec2& size, int
 void TileMap::setTile(int c, int r, int value)
 {
 	map[r * mapSize.x + c] = value;
+	free();
 	prepareArrays(minCoords, *program);
 }

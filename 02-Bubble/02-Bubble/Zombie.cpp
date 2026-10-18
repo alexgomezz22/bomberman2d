@@ -77,8 +77,6 @@ void Zombie::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->addKeyframe(DIE_LEFT, glm::vec2(48 / SHEET_W, 208 / SHEET_H));
 
 	sprite->changeAnimation(WALK_LEFT);
-
-	sprite->changeAnimation(WALK_LEFT);
 }
 
 void Zombie::update(int deltaTime)
