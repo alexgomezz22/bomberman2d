@@ -17,6 +17,7 @@
 #include <vector>
 #include "Bomb.h"
 #include "BombManager.h"
+#include "PowerUp.h"
 
 
 // Player is basically a Sprite that represents the player. As such it has
@@ -44,7 +45,10 @@ public:
 	int getMaxBombs() const { return maxBombs; }
 	void kill() { if (!dead) die(); }
 	glm::ivec2 getHitPos() const { return glm::ivec2(posPlayer.x + HIT_OFFSET_X, posPlayer.y + HIT_OFFSET_Y); }
+	glm::ivec2 getPosition() const { return glm::ivec2(posPlayer.x, posPlayer.y); }
 	glm::ivec2 getHitSize() const { return glm::ivec2(HIT_W, HIT_H); }
+	glm::ivec2 getSize() const { return glm::ivec2(HIT_OFFSET_X, HIT_OFFSET_Y); }
+	//void applyPowerUp(PowerUpType type);
 
 private:
 	bool bPuttingBomb, bBWasDown;
@@ -63,6 +67,7 @@ private:
 	int deathTimer;
 	void die();
 	int maxBombs;
+	bool heart;
 };
 
 

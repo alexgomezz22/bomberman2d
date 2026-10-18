@@ -48,7 +48,7 @@ void Scene::init()
 
 	player->setTileMap(map);
 	glm::vec2 tileSize = map->getMapSize();
-	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), map, texProgram, tileSize.x);
+	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), map, texProgram, tileSize.x, this);
 	zombie = new Zombie();
 	zombie->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	zombie->setPosition(glm::vec2(19 * map->getTileSize(), 5 * map->getTileSize()));  // MARCAR POS DEL ZOMBIE
@@ -78,6 +78,7 @@ void Scene::init()
 
 	state = STATE_INTRO;
 	stateTimer = 0;
+	srand(time(NULL));
 }
 
 void Scene::update(int deltaTime)
@@ -133,6 +134,20 @@ void Scene::update(int deltaTime)
 		else
 			state = STATE_GAMEOVER;
 	}
+
+	for (auto it = powerups.begin(); it != powerups.end(); ) {
+		(*it)->update(deltaTime);
+
+		// Si el jugador colisiona con el powerup
+		if ((*it)->checkCollision(player->getPosition(), player->getSize())) {
+			//player->applyPowerUp((*it)->getType());	// Aplicar ventaja
+			delete* it;                             // Liberar memoria del objeto
+			it = powerups.erase(it);                // Eliminar del vector de forma segura
+		}
+		else {
+			++it;
+		}
+	}
 }
 
 void Scene::render()
@@ -151,6 +166,9 @@ void Scene::render()
 	BackgroundMap->render();
 	MiddleMap->render();
 	map->render();
+	for (PowerUp* p : powerups) {
+		p->render();
+	}
 	bombManager.render();
 	zombie->render();
 	player->render();
@@ -186,5 +204,20 @@ void Scene::initShaders()
 	fShader.free();
 }
 
+PowerUpType Scene::getRandomType() const
+{
+	// Genera un entero entre 0 y 3
+	int randomIdx = rand() % 4;	// Tenemos 4 tipos de PowerUps
+	return static_cast<PowerUpType>(randomIdx);
+}
 
 
+void Scene::setPowerUp(int c, int r)
+{
+	//if ((rand() % 100) < 30) {
+	if (true) {
+		PowerUp* p = new PowerUp();
+		p->init(glm::vec2(c, r), 16, getRandomType(), texProgram);
+		powerups.push_back(p);
+	}
+}

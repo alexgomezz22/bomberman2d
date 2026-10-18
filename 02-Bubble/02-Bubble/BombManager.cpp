@@ -1,4 +1,5 @@
 #include "BombManager.h"
+#include "Scene.h"
 
 #define BOMB_RANGE 4
 
@@ -32,12 +33,13 @@ BombManager::~BombManager()
 		delete flameSprite;
 }
 
-void BombManager::init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram, int mapSize_x)
+void BombManager::init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram, int mapSize_x, Scene* scenePtr)
 {
 	tileMapDispl = tileMapPos;
 	map = tileMap;
 	texProgram = &shaderProgram;
 	mapSizeX = mapSize_x;
+	this->scene = scenePtr;
 
 	flameSheet.loadFromFile("images/explosion.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	flameSprite = Sprite::createSprite(glm::ivec2(BOMB_TILE, BOMB_TILE),
@@ -80,6 +82,7 @@ void BombManager::detonate(Bomb* b)
 			int c = t.x + dx[d] * s, r = t.y + dy[d] * s;
 			if (map->isBreakableTile(c,r)) {
 				map->setTile(c, r, 0);
+				scene->setPowerUp(c,r);
 				break;
 			}
 			else if (map->isSolidTile(c, r))

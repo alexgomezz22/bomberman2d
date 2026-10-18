@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "BombManager.h"
 #include "Zombie.h"
+#include "PowerUp.h"
 
 
 // Scene contains all the entities of our game.
@@ -25,9 +26,11 @@ public:
 	void init();
 	void update(int deltaTime);
 	void render();
+	void setPowerUp(int c, int r);
 
 private:
 	void initShaders();
+	PowerUpType getRandomType() const;
 
 private:
 	TileMap *map;			// Mapa de colisiones (dense layer)
@@ -45,7 +48,7 @@ private:
 	int stateTimer;
 	Texture introTex, gameOverTex;
 	Sprite* introSprite, * gameOverSprite;
-
+	std::vector<PowerUp*> powerups;
 
 };
 
