@@ -47,7 +47,8 @@ void Scene::init()
 	player->setPosition(spawnPos);
 
 	player->setTileMap(map);
-	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), map, texProgram);
+	glm::vec2 tileSize = map->getMapSize();
+	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), map, texProgram, tileSize.x);
 	zombie = new Zombie();
 	zombie->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	zombie->setPosition(glm::vec2(19 * map->getTileSize(), 5 * map->getTileSize()));  // MARCAR POS DEL ZOMBIE

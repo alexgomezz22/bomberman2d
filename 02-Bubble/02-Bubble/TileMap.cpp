@@ -11,13 +11,15 @@ using namespace std;
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	TileMap *map = new TileMap(levelFile, minCoords, program);
-	
 	return map;
 }
 
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
+	this->minCoords = minCoords;
+	this->program = &program;
+
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
 }
@@ -231,6 +233,16 @@ bool TileMap::isSolidTile(int col, int row) const
 	return map[row * mapSize.x + col] != 0; // poner aquí la misma condición de sólido que usamos en collisionMoveDown
 }
 
+bool TileMap::isBreakableTile(int col, int row) const
+{
+	if (col < 0 || row < 0 || col >= mapSize.x || row >= mapSize.y)
+		return false;                       // fuera del mapa = pared
+	for (int i = 0; i < breakableTiles.size(); ++i)
+		if ((map[row * mapSize.x + col] - 1) == breakableTiles[i])
+			return true;
+	return false;
+}
+
 bool TileMap::collisionMoveUp(const glm::ivec2& pos, const glm::ivec2& size, int* posY) const
 {
 	int x0, x1, y;
@@ -256,30 +268,8 @@ bool TileMap::collisionMoveUp(const glm::ivec2& pos, const glm::ivec2& size, int
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void TileMap::setTile(int c, int r, int value)
+{
+	map[r * mapSize.x + c] = value;
+	prepareArrays(minCoords, *program);
+}
