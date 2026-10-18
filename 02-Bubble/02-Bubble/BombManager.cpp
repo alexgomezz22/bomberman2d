@@ -80,10 +80,11 @@ void BombManager::detonate(Bomb* b)
 			int c = t.x + dx[d] * s, r = t.y + dy[d] * s;
 			if (map->isBreakableTile(c,r)) {
 				map->setTile(c, r, 0);
+				break;
 			}
 			else if (map->isSolidTile(c, r))
 				break;
-			bool last = (s == BOMB_RANGE) || (map->isSolidTile(c + dx[d], r + dy[d]) && !map->isBreakableTile(c + dx[d], r + dy[d]));
+			bool last = (s == BOMB_RANGE) || map->isSolidTile(c + dx[d], r + dy[d]);
 			addFlame(f, c, r, last ? tip[d] : body[d], s);
 		}
 	}
