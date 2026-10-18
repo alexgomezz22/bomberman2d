@@ -32,11 +32,12 @@ BombManager::~BombManager()
 		delete flameSprite;
 }
 
-void BombManager::init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram)
+void BombManager::init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram, int mapSize_x)
 {
 	tileMapDispl = tileMapPos;
 	map = tileMap;
 	texProgram = &shaderProgram;
+	mapSizeX = mapSize_x;
 
 	flameSheet.loadFromFile("images/explosion.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	flameSprite = Sprite::createSprite(glm::ivec2(BOMB_TILE, BOMB_TILE),
@@ -88,9 +89,12 @@ void BombManager::detonate(Bomb* b)
 		for (int s = 1; s <= BOMB_RANGE; s++)
 		{
 			int c = t.x + dx[d] * s, r = t.y + dy[d] * s;
-			if (map->isSolidTile(c, r))
+			if (map->isBreakableTile(c,r)) {
+				map->setTile(c, r, 0);
+			}
+			else if (map->isSolidTile(c, r))
 				break;
-			bool last = (s == BOMB_RANGE) || map->isSolidTile(c + dx[d], r + dy[d]);
+			bool last = (s == BOMB_RANGE) || (map->isSolidTile(c + dx[d], r + dy[d]) && !map->isBreakableTile(c + dx[d], r + dy[d]));
 			addFlame(f, c, r, last ? tip[d] : body[d], s);
 		}
 	}

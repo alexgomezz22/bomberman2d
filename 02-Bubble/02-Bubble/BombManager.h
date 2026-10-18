@@ -11,7 +11,7 @@ public:
 	BombManager();
 	~BombManager();
 
-	void init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram);
+	void init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram, int mapSize_x);
 	void addBomb(int col, int row);
 	void update(int deltaTime);
 	void render();
@@ -21,13 +21,13 @@ public:
 
 private:
 	void detonate(Bomb* b);
-
 	std::vector<Bomb*> bombs;
 	TileMap* map;
 	ShaderProgram* texProgram;
 	glm::ivec2 tileMapDispl;
 	Texture flameSheet;
 	Sprite* flameSprite;
+	int mapSizeX;
 };
 
 #endif
