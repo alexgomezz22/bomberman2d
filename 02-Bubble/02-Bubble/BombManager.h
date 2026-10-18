@@ -17,7 +17,10 @@ public:
 	void render();
 
 	std::vector<Bomb*>& getBombs() { return bombs; }
-	bool isInExplosion(const glm::ivec2& pos, const glm::ivec2& size) const;  // para jugador y enemigos (lo usaremos luego)
+	bool isInExplosion(const glm::ivec2& pos, const glm::ivec2& size) const;
+	void clear();
+	bool addBomb(int col, int row);
+	int countActive() const;
 
 private:
 	void detonate(Bomb* b);

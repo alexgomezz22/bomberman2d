@@ -7,11 +7,13 @@
 #include "TileMap.h"
 #include "Player.h"
 #include "BombManager.h"
+#include "Zombie.h"
 
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
 
+enum SceneState { STATE_INTRO, STATE_PLAYING, STATE_GAMEOVER };
 
 class Scene
 {
@@ -32,10 +34,18 @@ private:
 	TileMap *MiddleMap;		// Mapa del medio (cosas entre el personaje y el fondo)
 	TileMap *BackgroundMap;	// Mapa del fondo (paisaje)
 	Player *player;
+	Zombie* zombie;
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;
 	BombManager bombManager;
+	int lives;
+	glm::vec2 spawnPos;
+	SceneState state;
+	int stateTimer;
+	Texture introTex, gameOverTex;
+	Sprite* introSprite, * gameOverSprite;
+
 
 };
 
