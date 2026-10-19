@@ -15,8 +15,8 @@
 #define DOOR_OPEN_TOP 344
 #define DOOR_OPEN_BOTTOM 345
 
-static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los ultimos dos la pos de la puerta
-	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} }, 26, 24 },
+static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los siguientes dos la pos de la puerta, los siguientes endermans
+	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} }, 26, 24,  1, { {5, 1} }},
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {14, 7}, {28, 4} }, -1, -1 },
 	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 1, 20, 1, { {19, 5} } },
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 20, 1, { {19, 5} } },
@@ -109,6 +109,8 @@ void Scene::update(int deltaTime)
 	bombManager.update(deltaTime);
 
 	bool allDead = true;
+	glm::ivec2 p = player->getHitPos(), ps = player->getHitSize();
+
 	for (size_t i = 0; i < zombies.size(); i++)
 	{
 		zombies[i]->update(deltaTime);
@@ -116,17 +118,29 @@ void Scene::update(int deltaTime)
 
 		if (zombies[i]->isAlive() && !player->isDead())
 		{
-			glm::ivec2 p = player->getHitPos(), ps = player->getHitSize();
 			glm::ivec2 z = zombies[i]->getHitPos(), zs = zombies[i]->getHitSize();
 			if (p.x < z.x + zs.x && p.x + ps.x > z.x && p.y < z.y + zs.y && p.y + ps.y > z.y)
 				player->kill();
 		}
 	}
+	for (size_t i = 0; i < endermen.size(); i++)
+	{
+		endermen[i]->update(deltaTime);
+		if (!endermen[i]->isDead()) allDead = false;
+
+		if (endermen[i]->isAlive() && !player->isDead())
+		{
+			glm::ivec2 e = endermen[i]->getHitPos(), es = endermen[i]->getHitSize();
+			if (p.x < e.x + es.x && p.x + ps.x > e.x && p.y < e.y + es.y && p.y + ps.y > e.y)
+				player->kill();
+		}
+	}
 
 	const LevelData& L = LEVELS[currentLevel];
+	bool hasEnemies = !zombies.empty() || !endermen.empty();
 
-	// Todos los zombies muertos: se abre la puerta (o se pasa directo si el nivel no tiene)
-	if (!zombies.empty() && allDead && !player->isDead() && !doorOpen)
+	// Todos los enemigos muertos: se abre la puerta (o se pasa directo si el nivel no tiene)
+	if (hasEnemies && allDead && !player->isDead() && !doorOpen)
 	{
 		if (L.doorCol < 0)
 		{
@@ -144,7 +158,6 @@ void Scene::update(int deltaTime)
 	if (doorOpen && !player->isDead())
 	{
 		int ts = map->getTileSize();
-		glm::ivec2 p = player->getHitPos(), ps = player->getHitSize();
 		int dx = L.doorCol * ts, dy = L.doorRow * ts;
 		if (p.x < dx + ts && p.x + ps.x > dx && p.y < dy + 2 * ts && p.y + ps.y > dy)
 		{
@@ -157,7 +170,7 @@ void Scene::update(int deltaTime)
 	{
 		lives--;
 		if (lives > 0)
-			loadLevel(currentLevel);   // recarga el nivel: bloques y zombies como al inicio
+			loadLevel(currentLevel);   // recarga el nivel: bloques y enemigos como al inicio
 		else
 		{
 			bombManager.clear();
@@ -185,6 +198,7 @@ void Scene::render()
 	map->render();
 	bombManager.render();
 	for (size_t i = 0; i < zombies.size(); i++) zombies[i]->render();
+	for (size_t i = 0; i < endermen.size(); i++) endermen[i]->render();
 	player->render();
 }
 
@@ -246,6 +260,19 @@ void Scene::loadLevel(int n)
 		z->setTileMap(map);
 		z->setBombManager(&bombManager);
 		zombies.push_back(z);
+	}
+
+	for (size_t i = 0; i < endermen.size(); i++) delete endermen[i];
+	endermen.clear();
+	for (int i = 0; i < L.nEndermen; i++)
+	{
+		Enderman* e = new Enderman();
+		e->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+		e->setTileMap(map);
+		e->setBombManager(&bombManager);
+		e->setPosition(glm::vec2(L.endermanTiles[i][0] * map->getTileSize(),
+			L.endermanTiles[i][1] * map->getTileSize()));
+		endermen.push_back(e);
 	}
 
 	state = STATE_INTRO;
