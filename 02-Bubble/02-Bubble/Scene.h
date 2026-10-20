@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "BombManager.h"
 #include "Zombie.h"
+#include "Enderman.h"
 
 #include <vector>
 
@@ -20,6 +21,8 @@ struct LevelData
 	int nZombies;
 	int zombieTiles[8][2];   // {columna, fila}
 	int doorCol, doorRow;     // tile de arriba de la puerta; -1 si el nivel no tiene puerta
+	int nEndermen;
+	int endermanTiles[4][2];
 };
 
 
@@ -60,7 +63,8 @@ private:
 
 	void loadLevel(int n);
 	int currentLevel;
-	std::vector<Zombie*> zombies;      
+	std::vector<Zombie*> zombies;
+	std::vector<Enderman*> endermen;
 	Texture introTex[NUM_LEVELS];      
 	Sprite* introSprite[NUM_LEVELS];   
 	bool doorOpen;
