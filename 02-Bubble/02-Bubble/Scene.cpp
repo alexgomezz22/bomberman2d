@@ -87,6 +87,21 @@ void Scene::update(int deltaTime)
 {
 	stateTimer += deltaTime;
 
+	// Teclas 1-5: ir directamente a ese nivel
+	static bool keyWasDown[NUM_LEVELS] = { false };
+	for (int i = 0; i < NUM_LEVELS; i++)
+	{
+		bool down = Game::instance().getKey(GLFW_KEY_1 + i);
+		bool pressed = down && !keyWasDown[i];// solo en el frame en que se pulsa, sino se carga 60 veces 
+		keyWasDown[i] = down;
+		if (pressed)
+		{
+			lives = 3;
+			loadLevel(i);
+			return;
+		}
+	}
+
 	if (state == STATE_INTRO)
 	{
 		if (stateTimer >= 2000)
