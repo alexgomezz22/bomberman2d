@@ -123,6 +123,16 @@ void Scene::update(int deltaTime)
 	player->update(deltaTime);
 	bombManager.update(deltaTime);
 
+	// Tecla K mata a todos los enemigos
+	static bool kWasDown = false;
+	bool kDown = Game::instance().getKey(GLFW_KEY_K);
+	if (kDown && !kWasDown)
+	{
+		for (size_t i = 0; i < zombies.size(); i++) zombies[i]->kill();
+		for (size_t i = 0; i < endermen.size(); i++) endermen[i]->kill();
+	}
+	kWasDown = kDown;
+
 	bool allDead = true;
 	glm::ivec2 p = player->getHitPos(), ps = player->getHitSize();
 

@@ -168,3 +168,10 @@ void Zombie::respawn()
 	sprite->changeAnimation(WALK_LEFT);
 	setPosition(spawnPos);
 }
+void Zombie::kill()
+{
+	if (!isAlive()) return;
+	dying = true;
+	dyingTimer = 0;
+	sprite->changeAnimation(dir < 0 ? DIE_LEFT : DIE_RIGHT);
+}

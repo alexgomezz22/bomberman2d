@@ -26,6 +26,7 @@ public:
 	glm::ivec2 getHitPos() const;
 	glm::ivec2 getHitSize() const;
 	void respawn();
+	void kill();
 
 private:
 	bool canStandAt(int x, int y);
