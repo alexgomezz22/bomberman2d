@@ -5,7 +5,7 @@
 #define ZOMBIE_FALL_STEP 4
 #define ZOMBIE_ANIM_SPEED 6
 #define ZOMBIE_FRAME 16          // tamaño de un frame en la hoja
-#define ZOMBIE_SIZE 32           // tamaño en pantalla (igual que Steve)
+#define ZOMBIE_SIZE 32
 #define ZOMBIE_MOVE_EVERY 4      // se mueve 1 px cada 3 frames
 #define HIT_MARGIN_X 4
 #define HIT_MARGIN_Y 2
