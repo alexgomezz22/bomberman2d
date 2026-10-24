@@ -86,7 +86,7 @@ void Enderman::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->changeAnimation(WALK_LEFT);
 }
 
-// ¿Cabe el enderman con la esquina superior izquierda en (x, y)?
+// Cabe el enderman con la esquina superior izquierda en (x, y)?
 // Sin tiles sólidos dentro y con suelo bajo los dos pies.
 bool Enderman::canStandAt(int x, int y)
 {
@@ -205,4 +205,12 @@ void Enderman::respawn()
 	dir = -1;
 	sprite->changeAnimation(WALK_LEFT);
 	setPosition(spawnPos);
+}
+
+void Enderman::kill()
+{
+	if (!isAlive()) return;
+	dying = true;
+	dyingTimer = 0;
+	sprite->changeAnimation(dir < 0 ? DIE_LEFT : DIE_RIGHT);
 }
