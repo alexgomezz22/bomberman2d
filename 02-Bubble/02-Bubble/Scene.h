@@ -10,6 +10,7 @@
 #include "BombManager.h"
 #include "Zombie.h"
 #include "Enderman.h"
+#include "Hud.h"
 
 #include <vector>
 
@@ -41,6 +42,7 @@ public:
 	void init();
 	void update(int deltaTime);
 	void render();
+	void addLife();
 
 private:
 	void initShaders();
@@ -68,6 +70,8 @@ private:
 	Texture introTex[NUM_LEVELS];      
 	Sprite* introSprite[NUM_LEVELS];   
 	bool doorOpen;
+
+	Hud hud;
 
 };
 
