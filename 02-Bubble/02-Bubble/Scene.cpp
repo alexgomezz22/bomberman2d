@@ -17,6 +17,9 @@
 
 #define MAX_LIVES 5
 
+// segundos para pasarse cada nivel
+static const int LEVEL_TIME[NUM_LEVELS] = { 180, 150, 150, 180, 240 };   // 3:00, 2:30, 2:30, 3:00, 4:00
+
 static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los siguientes dos la pos de la puerta, los siguientes endermans
 	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} }, 26, 24, 1, { {5, 1} }  },
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {14, 7}, {28, 4} }, 30, 4 },
@@ -126,6 +129,17 @@ void Scene::update(int deltaTime)
 	player->update(deltaTime);
 	bombManager.update(deltaTime);
 
+	// Cuenta atrás: al llegar a 0, Steve muere
+	if (!player->isDead())
+	{
+		timeLeft -= deltaTime;
+		if (timeLeft <= 0)
+		{
+			timeLeft = 0;
+			player->kill();
+		}
+	}
+
 	// Tecla K mata a todos los enemigos
 	static bool kWasDown = false;
 	bool kDown = Game::instance().getKey(GLFW_KEY_K);
@@ -232,7 +246,7 @@ void Scene::render()
 	int enemies = 0;
 	for (size_t i = 0; i < zombies.size(); i++)  if (zombies[i]->isAlive())  enemies++;
 	for (size_t i = 0; i < endermen.size(); i++) if (endermen[i]->isAlive()) enemies++;
-	hud.render(lives, enemies, player->getMaxBombs());
+	hud.render(lives, enemies, player->getMaxBombs(), (timeLeft + 999) / 1000);
 }
 
 void Scene::initShaders()
@@ -268,6 +282,7 @@ void Scene::initShaders()
 void Scene::loadLevel(int n)
 {
 	doorOpen = false;
+	timeLeft = LEVEL_TIME[n] * 1000;
 	currentLevel = n;
 	const LevelData& L = LEVELS[n];
 	glm::ivec2 disp(SCREEN_X, SCREEN_Y);
