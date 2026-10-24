@@ -18,7 +18,7 @@
 static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los siguientes dos la pos de la puerta, los siguientes endermans
 	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} }, 26, 24, 1, { {5, 1} }  },
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {14, 7}, {28, 4} }, 30, 4 },
-	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 1, 20, 1, { {19, 5} }, 24, 2},
+	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 1, 20, 1, { {10, 5} }, 24, 2},
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 20, 1, { {19, 5} } },
 	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 1, 20, 1, { {19, 5} } }
 };
@@ -61,17 +61,17 @@ void Scene::init()
 		char path[64];
 		sprintf(path, "images/level%d.png", i + 1);
 		introTex[i].loadFromFile(path, TEXTURE_PIXEL_FORMAT_RGBA);
-		introTex[i].setMagFilter(GL_NEAREST);                 // <- nuevo
-		introTex[i].setMinFilter(GL_NEAREST);                 // <- nuevo
-		introSprite[i] = Sprite::createSprite(glm::ivec2(448, 448), glm::vec2(1.f, 1.f), &introTex[i], &texProgram);   // <- 448x448
+		introTex[i].setMagFilter(GL_NEAREST);
+		introTex[i].setMinFilter(GL_NEAREST);
+		introSprite[i] = Sprite::createSprite(glm::ivec2(448, 448), glm::vec2(1.f, 1.f), &introTex[i], &texProgram);
 		introSprite[i]->setNumberAnimations(1);
 		introSprite[i]->setAnimationSpeed(0, 8);
 		introSprite[i]->addKeyframe(0, glm::vec2(0.f, 0.f));
 		introSprite[i]->changeAnimation(0);
-		introSprite[i]->setPosition(glm::vec2(96.f, 16.f));   // <- centrada
+		introSprite[i]->setPosition(glm::vec2(96.f, 16.f));//en el centro
 	}
 
-	// Pantalla de game over (sin cambios)
+	// Pantalla de game over
 	gameOverTex.loadFromFile("images/gameover.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	gameOverSprite = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH, SCREEN_HEIGHT), glm::vec2(1.f, 1.f), &gameOverTex, &texProgram);
 	gameOverSprite->setNumberAnimations(1);
