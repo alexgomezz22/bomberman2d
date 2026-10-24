@@ -5,8 +5,8 @@
 #define ZOMBIE_FALL_STEP 4
 #define ZOMBIE_ANIM_SPEED 6
 #define ZOMBIE_FRAME 16          // tamaño de un frame en la hoja
-#define ZOMBIE_SIZE 32           // tamaño en pantalla (igual que Steve)
-#define ZOMBIE_MOVE_EVERY 2      // se mueve 1 px cada 2 frames
+#define ZOMBIE_SIZE 32
+#define ZOMBIE_MOVE_EVERY 4      // se mueve 1 px cada 3 frames
 #define HIT_MARGIN_X 4
 #define HIT_MARGIN_Y 2
 
@@ -59,10 +59,10 @@ void Zombie::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->addKeyframe(WALK_RIGHT, glm::vec2(48 / SHEET_W, 128 / SHEET_H));
 
 	sprite->setAnimationSpeed(WALK_LEFT, ZOMBIE_ANIM_SPEED);
-	sprite->addKeyframe(WALK_LEFT, glm::vec2(0 / SHEET_W, 176 / SHEET_H));
-	sprite->addKeyframe(WALK_LEFT, glm::vec2(16 / SHEET_W, 176 / SHEET_H));
-	sprite->addKeyframe(WALK_LEFT, glm::vec2(32 / SHEET_W, 176 / SHEET_H));
 	sprite->addKeyframe(WALK_LEFT, glm::vec2(48 / SHEET_W, 176 / SHEET_H));
+	sprite->addKeyframe(WALK_LEFT, glm::vec2(32 / SHEET_W, 176 / SHEET_H));
+	sprite->addKeyframe(WALK_LEFT, glm::vec2(16 / SHEET_W, 176 / SHEET_H));
+	sprite->addKeyframe(WALK_LEFT, glm::vec2(0 / SHEET_W, 176 / SHEET_H));
 
 	sprite->setAnimationSpeed(DIE_RIGHT, ZOMBIE_DEATH_SPEED);
 	sprite->addKeyframe(DIE_RIGHT, glm::vec2(0 / SHEET_W, 160 / SHEET_H));

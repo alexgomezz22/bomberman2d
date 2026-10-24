@@ -15,6 +15,8 @@
 #define DOOR_OPEN_TOP 344
 #define DOOR_OPEN_BOTTOM 345
 
+#define MAX_LIVES 5
+
 static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los siguientes dos la pos de la puerta, los siguientes endermans
 	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} }, 26, 24, 1, { {5, 1} }  },
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {14, 7}, {28, 4} }, 30, 4 },
@@ -68,7 +70,7 @@ void Scene::init()
 		introSprite[i]->setAnimationSpeed(0, 8);
 		introSprite[i]->addKeyframe(0, glm::vec2(0.f, 0.f));
 		introSprite[i]->changeAnimation(0);
-		introSprite[i]->setPosition(glm::vec2(96.f, 16.f));//en el centro
+		introSprite[i]->setPosition(glm::vec2(96.f, 32.f));
 	}
 
 	// Pantalla de game over
@@ -80,6 +82,7 @@ void Scene::init()
 	gameOverSprite->changeAnimation(0);
 	gameOverSprite->setPosition(glm::vec2(0.f, 0.f));
 
+	hud.init(texProgram);
 	loadLevel(0);   // carga mapas, Steve y zombies del nivel 1, y pone el estado en INTRO
 }
 
@@ -225,6 +228,11 @@ void Scene::render()
 	for (size_t i = 0; i < zombies.size(); i++) zombies[i]->render();
 	for (size_t i = 0; i < endermen.size(); i++) endermen[i]->render();
 	player->render();
+
+	int enemies = 0;
+	for (size_t i = 0; i < zombies.size(); i++)  if (zombies[i]->isAlive())  enemies++;
+	for (size_t i = 0; i < endermen.size(); i++) if (endermen[i]->isAlive()) enemies++;
+	hud.render(lives, enemies, player->getMaxBombs());
 }
 
 void Scene::initShaders()
@@ -304,4 +312,8 @@ void Scene::loadLevel(int n)
 	stateTimer = 0;
 }
 
+void Scene::addLife()
+{
+	if (lives < MAX_LIVES) lives++;
+}
 
