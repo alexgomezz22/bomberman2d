@@ -13,7 +13,7 @@ public:
 	~Hud();
 
 	void init(ShaderProgram& program);
-	void render(int lives, int enemies, int maxBombs);
+	void render(int lives, int enemies, int maxBombs, int seconds);
 
 private:
 	Sprite* makeCell(ShaderProgram& program, int nAnims);
@@ -26,6 +26,11 @@ private:
 	Sprite* enemyUnits;
 	Sprite* bombIcon;
 	Sprite* bombDigit;
+
+	Sprite* timeMin;
+	Sprite* timeSecTens;
+	Sprite* timeSecUnits;
+	Sprite* colon;
 };
 
 #endif

@@ -72,6 +72,7 @@ private:
 	bool doorOpen;
 
 	Hud hud;
+	int timeLeft;// ms que quedan
 
 };
 

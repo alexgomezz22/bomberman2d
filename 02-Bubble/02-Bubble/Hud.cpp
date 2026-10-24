@@ -15,6 +15,8 @@ Hud::Hud()
 	frame = NULL; enemyIcon = NULL; enemyTens = NULL; enemyUnits = NULL;
 	bombIcon = NULL; bombDigit = NULL;
 	for (int i = 0; i < HUD_MAX_LIVES; i++) hearts[i] = NULL;
+
+	timeMin = timeSecTens = timeSecUnits = colon = NULL;
 }
 
 Hud::~Hud()
@@ -22,6 +24,11 @@ Hud::~Hud()
 	delete frame; delete enemyIcon; delete enemyTens; delete enemyUnits;
 	delete bombIcon; delete bombDigit;
 	for (int i = 0; i < HUD_MAX_LIVES; i++) delete hearts[i];
+
+	delete timeMin;
+	delete timeSecTens;
+	delete timeSecUnits;
+	delete colon;
 }
 
 // Sprite de 16x16 de la hoja hud.png con nAnims animaciones (cada una con 1 frame)
@@ -95,9 +102,33 @@ void Hud::init(ShaderProgram& program)
 	enemyTens->setPosition(glm::vec2(360, HUD_Y));
 	enemyUnits->setPosition(glm::vec2(376, HUD_Y));
 	bombDigit->setPosition(glm::vec2(504, HUD_Y));
+
+	// Temporizador: minuto, ":", segundos (centrado en el hueco de x = 48..144)
+	timeMin = makeCell(program, 10);
+	timeSecTens = makeCell(program, 10);
+	timeSecUnits = makeCell(program, 10);
+	Sprite* timeSprites[3] = { timeMin, timeSecTens, timeSecUnits };
+	for (int t = 0; t < 3; t++)
+	{
+		for (int d = 0; d < 10; d++)
+		{
+			timeSprites[t]->setAnimationSpeed(d, 8);
+			timeSprites[t]->addKeyframe(d, glm::vec2(d * 16 / HUD_SHEET_W, 16 / HUD_SHEET_H));
+		}
+		timeSprites[t]->changeAnimation(0);
+	}
+	timeMin->setPosition(glm::vec2(64, HUD_Y));
+	timeSecTens->setPosition(glm::vec2(96, HUD_Y));
+	timeSecUnits->setPosition(glm::vec2(112, HUD_Y));
+
+	colon = makeCell(program, 1);
+	colon->setAnimationSpeed(0, 8);
+	colon->addKeyframe(0, glm::vec2(64 / HUD_SHEET_W, 0 / HUD_SHEET_H));   // ":" en la hoja
+	colon->changeAnimation(0);
+	colon->setPosition(glm::vec2(80, HUD_Y));
 }
 
-void Hud::render(int lives, int enemies, int maxBombs)
+void Hud::render(int lives, int enemies, int maxBombs, int seconds)
 {
 	if (enemies > 99) enemies = 99;
 	if (enemies < 0) enemies = 0;
@@ -123,4 +154,16 @@ void Hud::render(int lives, int enemies, int maxBombs)
 	bombIcon->render();
 	bombDigit->changeAnimation(maxBombs);
 	bombDigit->render();
+
+	if (seconds < 0) seconds = 0;
+	int minutes = seconds / 60;
+	if (minutes > 9) minutes = 9;
+
+	timeMin->changeAnimation(minutes);
+	timeMin->render();
+	colon->render();
+	timeSecTens->changeAnimation((seconds % 60) / 10);
+	timeSecTens->render();
+	timeSecUnits->changeAnimation(seconds % 10);
+	timeSecUnits->render();
 }
