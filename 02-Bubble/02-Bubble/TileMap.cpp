@@ -11,13 +11,15 @@ using namespace std;
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	TileMap *map = new TileMap(levelFile, minCoords, program);
-	
 	return map;
 }
 
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
+	this->minCoords = minCoords;
+	this->program = &program;
+
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
 }
@@ -162,7 +164,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 	glBindVertexArray(vao);
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 24 * nTiles * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 24 * nTiles * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 	posLocation = program.bindVertexAttribute("position", 2, 4*sizeof(float), 0);
 	texCoordLocation = program.bindVertexAttribute("texCoord", 2, 4*sizeof(float), (void *)(2*sizeof(float)));
 }
@@ -224,33 +226,51 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	
 	return false;
 }
+bool TileMap::isSolidTile(int col, int row) const
+{
+	if (col < 0 || row < 0 || col >= mapSize.x || row >= mapSize.y)
+		return true;                       // fuera del mapa = pared
+	return map[row * mapSize.x + col] != 0; // poner aquí la misma condición de sólido que usamos en collisionMoveDown
+}
+
+bool TileMap::isBreakableTile(int col, int row) const
+{
+	if (col < 0 || row < 0 || col >= mapSize.x || row >= mapSize.y)
+		return false;                       // fuera del mapa = pared
+	for (int i = 0; i < breakableTiles.size(); ++i)
+		if ((map[row * mapSize.x + col] - 1) == breakableTiles[i])
+			return true;
+	return false;
+}
+
+bool TileMap::collisionMoveUp(const glm::ivec2& pos, const glm::ivec2& size, int* posY) const
+{
+	int x0, x1, y;
+
+	x0 = pos.x / tileSize;
+	x1 = (pos.x + size.x - 1) / tileSize;
+
+	// Fila del mapa donde se encuentra la cabeza del personaje
+	y = pos.y / tileSize;
+
+	for (int x = x0; x <= x1; x++)
+	{
+		if (map[y * mapSize.x + x] != 0) // Si la tile no es vacía
+		{
+			if ((tileSize * (y + 1)) - *posY >= 0)	// En caso de que el jugador colisione con una tile no vacía
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void TileMap::setTile(int c, int r, int value)
+{
+	map[r * mapSize.x + c] = value;
+	free();
+	prepareArrays(minCoords, *program);
+}

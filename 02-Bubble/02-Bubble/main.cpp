@@ -4,6 +4,7 @@
 
 
 #define TARGET_FRAMERATE 60.0f
+#define WINDOW_SCALE 1.5f
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -27,6 +28,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		Game::instance().mouseRelease(button);
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
 
 int main(void)
 {
@@ -38,7 +43,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(int(SCREEN_WIDTH * WINDOW_SCALE), int(SCREEN_HEIGHT * WINDOW_SCALE), "Bomberman - Minecraft", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -57,6 +62,12 @@ int main(void)
 
 	/* Init glew to have access to GL extensions */
 	glewExperimental = GL_TRUE;
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	int fbW, fbH;
+	glfwGetFramebufferSize(window, &fbW, &fbH);
+	glViewport(0, 0, fbW, fbH);
+
 	glewInit();
 
 	/* Init step of the game loop */
