@@ -139,7 +139,7 @@ void Scene::update(int deltaTime)
 		(*it)->update(deltaTime);
 
 		// Si el jugador colisiona con el powerup
-		if ((*it)->checkCollision(player->getPosition(), player->getSize())) {
+		if ((*it)->checkCollision(player->getPosition(), player->getHitSize())) {
 			//player->applyPowerUp((*it)->getType());	// Aplicar ventaja
 			delete* it;                             // Liberar memoria del objeto
 			it = powerups.erase(it);                // Eliminar del vector de forma segura

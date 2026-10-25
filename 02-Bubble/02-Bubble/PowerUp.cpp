@@ -14,13 +14,14 @@ void PowerUp::init(const glm::vec2& tileCoords, int tileSize, PowerUpType pType,
     type = pType;
     size = glm::vec2(tileSize, tileSize);
 
-    // Convertimos la posición de la cuadrícula a píxeles en el mundo
-    position = glm::vec2((tileCoords.x + 2) * tileSize, (tileCoords.y + 1) * tileSize);
+    glm::vec2 mapOffset = glm::vec2(48.0f, 16.0f);
 
-    // 1. Cargar la imagen de los powerups
+    position = glm::vec2((tileCoords.x) * tileSize - 16.0f, (tileCoords.y) * tileSize);
+
+    // Cargar la imagen de los powerups
     texture.loadFromFile("images/powerups.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-    // 2. Crear el sprite
+    // Crear el sprite
     // Tamaño en pantalla = size. Tamaño relativo UV = 0.25f (1/4 de la imagen de ancho) y 1.0f de alto
     sprite = Sprite::createSprite(size, glm::vec2(0.25f, 1.0f), &texture, &program);
 
@@ -47,7 +48,7 @@ void PowerUp::init(const glm::vec2& tileCoords, int tileSize, PowerUpType pType,
     sprite->changeAnimation(type);
 
     // Colocamos el sprite en sus coordenadas del mundo
-    sprite->setPosition(position);
+    sprite->setPosition(position + mapOffset);
 }
 
 void PowerUp::update(int deltaTime) {
@@ -64,8 +65,8 @@ void PowerUp::render() {
 
 bool PowerUp::checkCollision(const glm::vec2& playerPos, const glm::vec2& playerSize) const {
     // Solapamiento en el eje X
-    bool collisionX = (position.x + size.x > playerPos.x) &&
-        (playerPos.x + playerSize.x > position.x);
+    bool collisionX = (position.x + size.x > playerPos.x - 6.0f) &&
+        (playerPos.x + playerSize.x - 6.0f > position.x);
 
     // Solapamiento en el eje Y
     bool collisionY = (position.y + size.y > playerPos.y) &&
