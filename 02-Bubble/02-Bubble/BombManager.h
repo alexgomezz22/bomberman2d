@@ -23,6 +23,7 @@ public:
 	void clear();
 	bool addBomb(int col, int row);
 	int countActive() const;
+	void setMap(TileMap* m) { map = m; }
 
 private:
 	void detonate(Bomb* b);

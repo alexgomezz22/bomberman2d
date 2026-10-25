@@ -26,6 +26,7 @@ public:
 	glm::ivec2 getHitPos() const;
 	glm::ivec2 getHitSize() const;
 	void respawn();
+	void kill();
 
 private:
 	glm::ivec2 tileMapDispl, posZombie;

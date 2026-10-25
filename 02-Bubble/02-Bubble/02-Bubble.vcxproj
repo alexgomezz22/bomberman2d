@@ -14,7 +14,9 @@
     <ClInclude Include="AnimKeyframes.h" />
     <ClInclude Include="Bomb.h" />
     <ClInclude Include="BombManager.h" />
+    <ClInclude Include="Enderman.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Hud.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Scene.h" />
@@ -28,7 +30,9 @@
   <ItemGroup>
     <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="BombManager.cpp" />
+    <ClCompile Include="Enderman.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Hud.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PowerUp.cpp" />

@@ -36,7 +36,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	bJumping = false;
 	facingLeft = false;
 	bPuttingBomb = false;
-	maxBombs = 1;
+	maxBombs = 2;
 	bBWasDown = false;
 	dead = false;
 	bombTimer = 0;
