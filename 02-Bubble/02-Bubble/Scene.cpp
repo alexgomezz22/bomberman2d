@@ -58,7 +58,7 @@ void Scene::init()
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setBombManager(&bombManager);
-	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), NULL, texProgram, 0);
+	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), NULL, texProgram, 0, this);
 
 	// Pantallas de intro de cada nivel (imágenes de 64x64, dibujadas a 448x448 y centradas)
 	for (int i = 0; i < NUM_LEVELS; i++)
