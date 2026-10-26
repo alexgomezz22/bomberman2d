@@ -357,7 +357,7 @@ void Scene::addLife()
 
 void Scene::setPowerUp(int c, int r)
 {
-	if ((rand() % 100) > 60) {
+	if ((rand() % 100) > 70) {
 		PowerUp* p = new PowerUp();
 		p->init(glm::vec2(c, r), 16, getRandomType(), texProgram);
 		powerups.push_back(p);
@@ -375,7 +375,7 @@ void Scene::applyPowerUp(PowerUpType type)
 
 	case FIRE_UP:
 		// Aumenta el radio de explosión de la bomba
-
+		bombManager.increaseBombRange();
 		break;
 
 	case TIMER:

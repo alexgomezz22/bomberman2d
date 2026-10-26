@@ -24,6 +24,7 @@ public:
 	bool addBomb(int col, int row);
 	int countActive() const;
 	void setMap(TileMap* m) { map = m; }
+	void increaseBombRange();
 
 private:
 	void detonate(Bomb* b);
@@ -35,6 +36,7 @@ private:
 	Sprite* flameSprite;
 	int mapSizeX;
 	Scene* scene;
+	int bomb_range;
 };
 
 #endif

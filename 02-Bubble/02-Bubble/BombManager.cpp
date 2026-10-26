@@ -1,7 +1,7 @@
 #include "BombManager.h"
 #include "Scene.h"
 
-#define BOMB_RANGE 4
+#define MAX_BOMB_RANGE 4
 
 #define SHEET_W 128.f
 #define SHEET_H 16.f
@@ -40,6 +40,7 @@ void BombManager::init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderPro
 	texProgram = &shaderProgram;
 	mapSizeX = mapSize_x;
 	this->scene = scenePtr;
+	bomb_range = 1;
 
 	flameSheet.loadFromFile("images/explosion.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	flameSprite = Sprite::createSprite(glm::ivec2(BOMB_TILE, BOMB_TILE),
@@ -77,7 +78,7 @@ void BombManager::detonate(Bomb* b)
 
 	for (int d = 0; d < 4; d++)
 	{
-		for (int s = 1; s <= BOMB_RANGE; s++)
+		for (int s = 1; s <= bomb_range; s++)
 		{
 			int c = t.x + dx[d] * s, r = t.y + dy[d] * s;
 			if (map->isBreakableTile(c,r)) {
@@ -87,7 +88,7 @@ void BombManager::detonate(Bomb* b)
 			}
 			else if (map->isSolidTile(c, r))
 				break;
-			bool last = (s == BOMB_RANGE) || map->isSolidTile(c + dx[d], r + dy[d]);
+			bool last = (s == bomb_range) || map->isSolidTile(c + dx[d], r + dy[d]);
 			addFlame(f, c, r, last ? tip[d] : body[d], s);
 		}
 	}
@@ -191,4 +192,11 @@ int BombManager::countActive() const
 		if (bombs[i]->getState() == BOMB_FUSE)
 			n++;
 	return n;
+}
+
+void BombManager::increaseBombRange()
+{
+	if (bomb_range < MAX_BOMB_RANGE) {
+		++bomb_range;
+	}
 }
