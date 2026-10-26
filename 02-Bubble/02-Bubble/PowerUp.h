@@ -7,7 +7,7 @@
 #include "ShaderProgram.h"
 #include <vector>
 
-enum PowerUpType { BOMB_UP, FIRE_UP, TIMER, HEART};
+enum PowerUpType { BOMB_UP, FIRE_UP, TIMER, LIFE_UP};
 
 class PowerUp
 {

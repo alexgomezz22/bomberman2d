@@ -226,7 +226,7 @@ void Scene::update(int deltaTime)
 
 		// Si el jugador colisiona con el powerup
 		if ((*it)->checkCollision(player->getPosition(), player->getHitSize())) {
-			//player->applyPowerUp((*it)->getType());	// Aplicar ventaja
+			applyPowerUp((*it)->getType());			// Aplicar power Up
 			delete* it;                             // Liberar memoria del objeto
 			it = powerups.erase(it);                // Eliminar del vector de forma segura
 		}
@@ -361,5 +361,31 @@ void Scene::setPowerUp(int c, int r)
 		PowerUp* p = new PowerUp();
 		p->init(glm::vec2(c, r), 16, getRandomType(), texProgram);
 		powerups.push_back(p);
+	}
+}
+
+void Scene::applyPowerUp(PowerUpType type)
+{
+	switch (type)
+	{
+	case BOMB_UP:
+		// Aumenta el numero de bombas que se pueden poner a la vez
+
+		break;
+
+	case FIRE_UP:
+		// Aumenta el radio de explosión de la bomba
+
+		break;
+
+	case TIMER:
+		// Congela el tiempo durante un rato
+
+		break;
+
+	case LIFE_UP:
+		// Añadir una vida
+		addLife();
+		break;
 	}
 }

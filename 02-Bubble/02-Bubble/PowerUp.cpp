@@ -40,9 +40,9 @@ void PowerUp::init(const glm::vec2& tileCoords, int tileSize, PowerUpType pType,
     sprite->setAnimationSpeed(TIMER, 8);
     sprite->addKeyframe(TIMER, glm::vec2(0.50f, 0.0f));
 
-    // HEART (Columna 3 en el spritesheet)
-    sprite->setAnimationSpeed(HEART, 8);
-    sprite->addKeyframe(HEART, glm::vec2(0.75f, 0.0f));
+    // LIFE_UP (Columna 3 en el spritesheet)
+    sprite->setAnimationSpeed(LIFE_UP, 8);
+    sprite->addKeyframe(LIFE_UP, glm::vec2(0.75f, 0.0f));
 
     // Activamos la animación según el tipo seleccionado
     sprite->changeAnimation(type);

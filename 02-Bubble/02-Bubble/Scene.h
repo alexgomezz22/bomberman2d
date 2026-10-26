@@ -49,6 +49,7 @@ public:
 private:
 	void initShaders();
 	PowerUpType getRandomType() const;
+	void applyPowerUp(PowerUpType type);
 
 private:
 	TileMap *map;			// Mapa de colisiones (dense layer)
