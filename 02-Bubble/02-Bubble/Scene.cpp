@@ -357,7 +357,8 @@ void Scene::addLife()
 
 void Scene::setPowerUp(int c, int r)
 {
-	if ((rand() % 100) > 70) {
+	//if ((rand() % 100) > 70) {
+	if (true) {
 		PowerUp* p = new PowerUp();
 		p->init(glm::vec2(c, r), 16, getRandomType(), texProgram);
 		powerups.push_back(p);
@@ -370,7 +371,7 @@ void Scene::applyPowerUp(PowerUpType type)
 	{
 	case BOMB_UP:
 		// Aumenta el numero de bombas que se pueden poner a la vez
-
+		player->increaseMaxBombs();
 		break;
 
 	case FIRE_UP:

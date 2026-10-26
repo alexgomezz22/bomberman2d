@@ -19,6 +19,7 @@
 #include "BombManager.h"
 #include "PowerUp.h"
 
+#define MAX_BOMBS_CONST 4
 
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
@@ -41,7 +42,7 @@ public:
 	bool isDead() const { return dead; }
 	bool isDeathFinished() const { return dead && deathTimer >= DEATH_ANIM_TIME + 500; }
 	void respawn(const glm::vec2& pos);
-	void increaseMaxBombs() { maxBombs++; }
+	void increaseMaxBombs() { if (maxBombs < MAX_BOMBS_CONST) maxBombs++; }
 	int getMaxBombs() const { return maxBombs; }
 	void kill() { if (!dead) die(); }
 	glm::ivec2 getHitPos() const { return glm::ivec2(posPlayer.x + HIT_OFFSET_X, posPlayer.y + HIT_OFFSET_Y); }
