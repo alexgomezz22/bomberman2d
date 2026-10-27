@@ -219,14 +219,37 @@ void Player::update(int deltaTime)
 		else
 		{
 			int oldY = posPlayer.y;
-			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
-			if (jumpAngle <= 90 && (bombBlocks(posPlayer) || map->collisionMoveUp(posPlayer, glm::ivec2(32,32), &posPlayer.y)))
+			// Calculamos la posición teórica a la que debería ir en este frame
+			int targetY = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
+
+			if (jumpAngle <= 90)
+			{
+				// Fase de subida: el desplazamiento es hacia arriba, no hay problema de gravedad
+				posPlayer.y = targetY;
+				if (bombBlocks(posPlayer) || map->collisionMoveUp(posPlayer, glm::ivec2(32, 32), &posPlayer.y))
+				{
+					posPlayer.y = oldY;
+					bJumping = false;
+				}
+			}
+			else // jumpAngle > 90
 			{
 				posPlayer.y = oldY;
-				bJumping = false;
+				bool collided = false;
+
+				while (posPlayer.y < targetY)
+				{
+					int step = (targetY - posPlayer.y > FALL_STEP) ? FALL_STEP : (targetY - posPlayer.y);
+					posPlayer.y += step;
+
+					if (map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y) || bombLandDown())
+					{
+						collided = true;
+						break;
+					}
+				}
+				bJumping = !collided;
 			}
-			if (jumpAngle > 90)
-				bJumping = !(map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y) || bombLandDown());
 		}
 	}
 	else
