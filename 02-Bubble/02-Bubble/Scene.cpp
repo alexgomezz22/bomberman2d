@@ -345,6 +345,7 @@ void Scene::loadLevel(int n)
 		endermen.push_back(e);
 	}
 
+	powerups = {};
 	state = STATE_INTRO;
 	stateTimer = 0;
 }
