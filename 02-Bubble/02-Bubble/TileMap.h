@@ -55,7 +55,7 @@ private:
 	Texture tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
-	std::vector<int> breakableTiles = { 92, 11 };
+	std::vector<int> breakableTiles = { 92, 11, 227, 212, 55, 39 };
 	glm::vec2 minCoords;
 	ShaderProgram* program;
 };

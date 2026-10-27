@@ -51,6 +51,9 @@
     <ClInclude Include="Zombie.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="PowerUp.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
     <ClInclude Include="Enderman.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
@@ -90,6 +93,9 @@
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
     <ClCompile Include="Zombie.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUp.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
     <ClCompile Include="Enderman.cpp">

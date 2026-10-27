@@ -5,13 +5,16 @@
 #include "Bomb.h"
 #include "TileMap.h"
 
+// Forward declaration
+class Scene;
+
 class BombManager
 {
 public:
 	BombManager();
 	~BombManager();
 
-	void init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram, int mapSize_x);
+	void init(const glm::ivec2& tileMapPos, TileMap* tileMap, ShaderProgram& shaderProgram, int mapSize_x, Scene* scenePtr);
 	void update(int deltaTime);
 	void render();
 
@@ -21,6 +24,7 @@ public:
 	bool addBomb(int col, int row);
 	int countActive() const;
 	void setMap(TileMap* m) { map = m; }
+	void increaseBombRange();
 
 private:
 	void detonate(Bomb* b);
@@ -31,6 +35,8 @@ private:
 	Texture flameSheet;
 	Sprite* flameSprite;
 	int mapSizeX;
+	Scene* scene;
+	int bomb_range;
 };
 
 #endif

@@ -58,7 +58,7 @@ void Scene::init()
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setBombManager(&bombManager);
-	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), NULL, texProgram, 0);
+	bombManager.init(glm::ivec2(SCREEN_X, SCREEN_Y), NULL, texProgram, 0, this);
 
 	// Pantallas de intro de cada nivel (imágenes de 64x64, dibujadas a 448x448 y centradas)
 	for (int i = 0; i < NUM_LEVELS; i++)
@@ -132,11 +132,16 @@ void Scene::update(int deltaTime)
 	// Cuenta atrás: al llegar a 0, Steve muere
 	if (!player->isDead())
 	{
-		timeLeft -= deltaTime;
-		if (timeLeft <= 0)
-		{
-			timeLeft = 0;
-			player->kill();
+		if (freezeTime > 0) {
+			freezeTime -= deltaTime;
+			if (freezeTime < 0) freezeTime = 0;
+		} else {
+			timeLeft -= deltaTime;
+			if (timeLeft <= 0)
+			{
+				timeLeft = 0;
+				player->kill();
+			}
 		}
 	}
 
@@ -220,6 +225,20 @@ void Scene::update(int deltaTime)
 			stateTimer = 0;
 		}
 	}
+
+	for (auto it = powerups.begin(); it != powerups.end(); ) {
+		(*it)->update(deltaTime);
+
+		// Si el jugador colisiona con el powerup
+		if ((*it)->checkCollision(player->getPosition(), player->getHitSize())) {
+			applyPowerUp((*it)->getType());			// Aplicar power Up
+			delete* it;                             // Liberar memoria del objeto
+			it = powerups.erase(it);                // Eliminar del vector de forma segura
+		}
+		else {
+			++it;
+		}
+	}
 }
 
 void Scene::render()
@@ -238,6 +257,9 @@ void Scene::render()
 	BackgroundMap->render();
 	MiddleMap->render();
 	map->render();
+	for (PowerUp* p : powerups) {
+		p->render();
+	}
 	bombManager.render();
 	for (size_t i = 0; i < zombies.size(); i++) zombies[i]->render();
 	for (size_t i = 0; i < endermen.size(); i++) endermen[i]->render();
@@ -323,8 +345,15 @@ void Scene::loadLevel(int n)
 		endermen.push_back(e);
 	}
 
+	powerups = {};
 	state = STATE_INTRO;
 	stateTimer = 0;
+}
+PowerUpType Scene::getRandomType() const
+{
+	// Genera un entero entre 0 y 3
+	int randomIdx = rand() % 4;	// Tenemos 4 tipos de PowerUps
+	return static_cast<PowerUpType>(randomIdx);
 }
 
 void Scene::addLife()
@@ -332,3 +361,38 @@ void Scene::addLife()
 	if (lives < MAX_LIVES) lives++;
 }
 
+void Scene::setPowerUp(int c, int r)
+{
+	//if ((rand() % 100) > 70) {
+	if (true) {
+		PowerUp* p = new PowerUp();
+		p->init(glm::vec2(c, r), 16, getRandomType(), texProgram);
+		powerups.push_back(p);
+	}
+}
+
+void Scene::applyPowerUp(PowerUpType type)
+{
+	switch (type)
+	{
+	case BOMB_UP:
+		// Aumenta el numero de bombas que se pueden poner a la vez
+		player->increaseMaxBombs();
+		break;
+
+	case FIRE_UP:
+		// Aumenta el radio de explosión de la bomba
+		bombManager.increaseBombRange();
+		break;
+
+	case TIMER:
+		// Congela el tiempo durante un rato
+		freezeTime = 10000.0f;
+		break;
+
+	case LIFE_UP:
+		// Añadir una vida
+		addLife();
+		break;
+	}
+}

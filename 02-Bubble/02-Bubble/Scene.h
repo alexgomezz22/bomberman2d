@@ -11,7 +11,7 @@
 #include "Zombie.h"
 #include "Enderman.h"
 #include "Hud.h"
-
+#include "PowerUp.h"
 #include <vector>
 
 
@@ -25,6 +25,7 @@ struct LevelData
 	int nEndermen;
 	int endermanTiles[4][2];
 };
+
 
 
 // Scene contains all the entities of our game.
@@ -42,10 +43,13 @@ public:
 	void init();
 	void update(int deltaTime);
 	void render();
+	void setPowerUp(int c, int r);
 	void addLife();
 
 private:
 	void initShaders();
+	PowerUpType getRandomType() const;
+	void applyPowerUp(PowerUpType type);
 
 private:
 	TileMap *map;			// Mapa de colisiones (dense layer)
@@ -73,6 +77,8 @@ private:
 
 	Hud hud;
 	int timeLeft;// ms que quedan
+	int freezeTime = 0;
+	std::vector<PowerUp*> powerups;
 
 };
 
