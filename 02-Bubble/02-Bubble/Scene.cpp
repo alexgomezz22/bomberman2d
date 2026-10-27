@@ -132,11 +132,16 @@ void Scene::update(int deltaTime)
 	// Cuenta atrás: al llegar a 0, Steve muere
 	if (!player->isDead())
 	{
-		timeLeft -= deltaTime;
-		if (timeLeft <= 0)
-		{
-			timeLeft = 0;
-			player->kill();
+		if (freezeTime > 0) {
+			freezeTime -= deltaTime;
+			if (freezeTime < 0) freezeTime = 0;
+		} else {
+			timeLeft -= deltaTime;
+			if (timeLeft <= 0)
+			{
+				timeLeft = 0;
+				player->kill();
+			}
 		}
 	}
 
@@ -381,7 +386,7 @@ void Scene::applyPowerUp(PowerUpType type)
 
 	case TIMER:
 		// Congela el tiempo durante un rato
-
+		freezeTime = 10000.0f;
 		break;
 
 	case LIFE_UP:

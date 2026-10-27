@@ -77,6 +77,7 @@ private:
 
 	Hud hud;
 	int timeLeft;// ms que quedan
+	int freezeTime = 0;
 	std::vector<PowerUp*> powerups;
 
 };
