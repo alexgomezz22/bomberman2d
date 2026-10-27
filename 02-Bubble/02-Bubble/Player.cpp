@@ -56,17 +56,17 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 	// Andar izquierda: fila 5, cols 0-3
 	sprite->setAnimationSpeed(MOVE_LEFT, 8);
-	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.000f, 0.625f));
-	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.125f, 0.625f));
-	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.250f, 0.625f));
 	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.375f, 0.625f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.250f, 0.625f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.125f, 0.625f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.000f, 0.625f));
 
 	// Andar derecha: fila 1, cols 0-3
 	sprite->setAnimationSpeed(MOVE_RIGHT, 8);
-	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.000f, 0.125f));
-	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.125f, 0.125f));
-	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.250f, 0.125f));
 	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.375f, 0.125f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.250f, 0.125f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.125f, 0.125f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.000f, 0.125f));
 
 
 	sprite->setAnimationSpeed(JUMP_RIGHT, 8);
