@@ -17,6 +17,10 @@
 
 #define MAX_LIVES 5
 
+#define CAMERA_ZOOM 2     // 2  se ven 18x14 tiles; 3  12x9 (más cerca del Bomberman)
+#define VIEW_W 576        // tamaño del hueco del marco
+#define VIEW_H 448
+
 // segundos para pasarse cada nivel
 static const int LEVEL_TIME[NUM_LEVELS] = { 180, 150, 150, 180, 240 };   // 3:00, 2:30, 2:30, 3:00, 4:00
 
@@ -224,16 +228,36 @@ void Scene::update(int deltaTime)
 
 void Scene::render()
 {
-	glm::mat4 modelview;
 	texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-	modelview = glm::mat4(1.0f);
-	texProgram.setUniformMatrix4f("modelview", modelview);
+	texProgram.setUniformMatrix4f("modelview", glm::mat4(1.0f));
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
 	if (state == STATE_INTRO) { introSprite[currentLevel]->render(); return; }
 	if (state == STATE_GAMEOVER) { gameOverSprite->render();            return; }
+
+	// Cámara ortogonal: sigue a Steve sin enseñar nada fuera del mapa
+	glm::ivec2 hp = player->getHitPos(), hs = player->getHitSize();
+	float viewW = float(VIEW_W) / CAMERA_ZOOM;
+	float viewH = float(VIEW_H) / CAMERA_ZOOM;
+	float mapW = map->getMapSize().x * map->getTileSize();
+	float mapH = map->getMapSize().y * map->getTileSize();
+
+	float camX = hp.x + hs.x / 2.f - viewW / 2.f;
+	float camY = hp.y + hs.y / 2.f - viewH / 2.f;
+	camX = std::max(0.f, std::min(camX, mapW - viewW));
+	camY = std::max(0.f, std::min(camY, mapH - viewH));
+	camX = floorf(camX);
+	camY = floorf(camY);
+
+	glm::mat4 cam = glm::translate(glm::mat4(1.f),
+		glm::vec3(SCREEN_X * (1 - CAMERA_ZOOM) - CAMERA_ZOOM * camX,
+			SCREEN_Y * (1 - CAMERA_ZOOM) - CAMERA_ZOOM * camY, 0.f));
+	cam = glm::scale(cam, glm::vec3(CAMERA_ZOOM, CAMERA_ZOOM, 1.f));
+
+	// El mundo se dibuja con la cámara dentro de la proyección (modelview queda en identidad)
+	texProgram.setUniformMatrix4f("projection", projection * cam);
 
 	BackgroundMap->render();
 	MiddleMap->render();
@@ -246,6 +270,9 @@ void Scene::render()
 	int enemies = 0;
 	for (size_t i = 0; i < zombies.size(); i++)  if (zombies[i]->isAlive())  enemies++;
 	for (size_t i = 0; i < endermen.size(); i++) if (endermen[i]->isAlive()) enemies++;
+
+	// El marco y el HUD sin zoom
+	texProgram.setUniformMatrix4f("projection", projection);
 	hud.render(lives, enemies, player->getMaxBombs(), (timeLeft + 999) / 1000);
 }
 
