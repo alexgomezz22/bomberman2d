@@ -7,7 +7,7 @@
 #define CREEPER_ANIM_SPEED 6
 #define CREEPER_FRAME 16           // tamaño de un frame en la hoja
 #define CREEPER_SIZE 32            // tamaño en pantalla (igual que Steve)
-#define CREEPER_SENSE_TILES 2      // a cuántos tiles detecta a Steve
+#define CREEPER_SENSE_TILES 3      // a cuántos tiles detecta a Steve
 #define HIT_MARGIN_X 4
 #define HIT_MARGIN_Y 2
 
