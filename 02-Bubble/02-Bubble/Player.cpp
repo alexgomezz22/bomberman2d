@@ -177,7 +177,10 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != MOVE_LEFT)
 			sprite->changeAnimation(MOVE_LEFT);
 		posPlayer.x -= 2;
-		if (map->collisionMoveLeft(posPlayer, glm::ivec2(32, 32)) || bombBlocks(posPlayer))
+		glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+		glm::ivec2 hitboxPos = posPlayer;
+		hitboxPos.x += 9;
+		if (map->collisionMoveLeft(hitboxPos, hitboxSize) || bombBlocks(posPlayer))
 		{
 			posPlayer.x += 2;
 			sprite->changeAnimation(STAND_LEFT);
@@ -189,7 +192,10 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != MOVE_RIGHT)
 			sprite->changeAnimation(MOVE_RIGHT);
 		posPlayer.x += 2;
-		if (map->collisionMoveRight(posPlayer, glm::ivec2(32, 32)) || bombBlocks(posPlayer))
+		glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+		glm::ivec2 hitboxPos = posPlayer;
+		hitboxPos.x += 9;
+		if (map->collisionMoveRight(hitboxPos, hitboxSize) || bombBlocks(hitboxPos))
 		{
 			posPlayer.x -= 2;
 			sprite->changeAnimation(STAND_RIGHT);
@@ -226,7 +232,10 @@ void Player::update(int deltaTime)
 			{
 				// Fase de subida: el desplazamiento es hacia arriba, no hay problema de gravedad
 				posPlayer.y = targetY;
-				if (bombBlocks(posPlayer) || map->collisionMoveUp(posPlayer, glm::ivec2(32, 32), &posPlayer.y))
+				glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+				glm::ivec2 hitboxPos = posPlayer;
+				hitboxPos.x += 9;
+				if (bombBlocks(posPlayer) || map->collisionMoveUp(hitboxPos, hitboxSize, &posPlayer.y))
 				{
 					posPlayer.y = oldY;
 					bJumping = false;
@@ -241,8 +250,10 @@ void Player::update(int deltaTime)
 				{
 					int step = (targetY - posPlayer.y > FALL_STEP) ? FALL_STEP : (targetY - posPlayer.y);
 					posPlayer.y += step;
-
-					if (map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y) || bombLandDown())
+					glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+					glm::ivec2 hitboxPos = posPlayer;
+					hitboxPos.x += 9;
+					if (map->collisionMoveDown(hitboxPos, hitboxSize, &posPlayer.y) || bombLandDown())
 					{
 						collided = true;
 						break;
@@ -255,7 +266,10 @@ void Player::update(int deltaTime)
 	else
 	{	// The player isn't in the middle of a jump
 		posPlayer.y += FALL_STEP;
-		bool onGround = map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y);
+		glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+		glm::ivec2 hitboxPos = posPlayer;
+		hitboxPos.x += 9;
+		bool onGround = map->collisionMoveDown(hitboxPos, hitboxSize, &posPlayer.y);
 		if (!onGround)
 			onGround = bombLandDown();
 
