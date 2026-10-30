@@ -423,3 +423,9 @@ void Scene::applyPowerUp(PowerUpType type)
 		break;
 	}
 }
+
+void Scene::restart()
+{
+	lives = 3;
+	loadLevel(0);
+}

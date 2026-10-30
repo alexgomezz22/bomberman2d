@@ -4,34 +4,33 @@
 
 #include <GLFW/glfw3.h>
 #include "Scene.h"
+#include "Menu.h"
 
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 512
 
 
-// Game is a singleton (a class with a single instance) that represents our whole application
-
+enum GameState { MAIN_MENU, PLAYING, INSTRUCTIONS, CREDITS };
 
 class Game
 {
 
 private:
 	Game() {}
-	
+
 public:
-	static Game &instance()
+	static Game& instance()
 	{
 		static Game G;
-	
+
 		return G;
 	}
-	
+
 	void init();
 	bool update(int deltaTime);
 	void render();
-	
-	// Input callback methods
+
 	void keyPressed(int key);
 	void keyReleased(int key);
 	void mouseMove(int x, int y);
@@ -41,14 +40,18 @@ public:
 	bool getKey(int key) const;
 
 private:
-	bool bPlay; // Continue to play game?
-	bool keys[GLFW_KEY_LAST+1]; // Store key states so that 
-							    // we can have access at any time
-	Scene scene;
+	bool justPressed(int key) const;
+	void initShaders();
 
+private:
+	bool bPlay;
+	bool keys[GLFW_KEY_LAST + 1];
+	bool prevKeys[GLFW_KEY_LAST + 1];
+	GameState currentState;
+	Scene scene;
+	Menu menu;
+	ShaderProgram texProgram;
 };
 
 
 #endif // _GAME_INCLUDE
-
-
