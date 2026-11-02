@@ -390,8 +390,7 @@ void Scene::addLife()
 
 void Scene::setPowerUp(int c, int r)
 {
-	//if ((rand() % 100) > 70) {
-	if (true) {
+	if ((rand() % 100) < 70) {
 		PowerUp* p = new PowerUp();
 		p->init(glm::vec2(c, r), 16, getRandomType(), texProgram);
 		powerups.push_back(p);
