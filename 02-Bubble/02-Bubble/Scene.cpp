@@ -12,9 +12,6 @@
 //#define INIT_PLAYER_X_TILES 1
 //#define INIT_PLAYER_Y_TILES 20
 
-#define DOOR_OPEN_TOP 344
-#define DOOR_OPEN_BOTTOM 345
-
 #define MAX_LIVES 5
 
 #define CAMERA_ZOOM 2     // 2  se ven 18x14 tiles;
@@ -32,6 +29,14 @@ static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna
 	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 1, 7, 1, { {19, 5}  } }
 };
 
+// tiles de la puerta abierta de cada nivel
+static const int DOOR_OPEN_TILES[NUM_LEVELS][2] = {
+	{ 344, 345 },    // nivel 1: puerta
+	{ 260, 260 },    // nivel 2: pon aquí los de tu portal
+	{ 260, 260 },
+	{ 344, 345 },
+	{ 344, 345 }
+};
 Scene::Scene()
 {
 	map = MiddleMap = BackgroundMap = NULL;
@@ -215,8 +220,8 @@ void Scene::update(int deltaTime)
 		doorOpen = true;
 		map->setTile(L.doorCol, L.doorRow, 0);      // ya no es sólida
 		map->setTile(L.doorCol, L.doorRow + 1, 0);
-		MiddleMap->setTile(L.doorCol, L.doorRow, DOOR_OPEN_TOP + 1);      // se dibuja abierta
-		MiddleMap->setTile(L.doorCol, L.doorRow + 1, DOOR_OPEN_BOTTOM + 1);
+		MiddleMap->setTile(L.doorCol, L.doorRow, DOOR_OPEN_TILES[currentLevel][0] + 1);
+		MiddleMap->setTile(L.doorCol, L.doorRow + 1, DOOR_OPEN_TILES[currentLevel][1] + 1);
 	}
 
 	// Steve toca la puerta abierta: siguiente nivel
