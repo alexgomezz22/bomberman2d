@@ -1,7 +1,7 @@
 #include "Hud.h"
 
-#define HUD_W 640.f              // debe coincidir con SCREEN_WIDTH
-#define HUD_H 512.f              // y con SCREEN_HEIGHT
+#define HUD_W 640.f
+#define HUD_H 512.f
 #define HUD_SHEET_W 256.f
 #define HUD_SHEET_H 64.f
 #define HUD_CELL 16.f
