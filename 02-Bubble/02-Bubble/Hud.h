@@ -34,6 +34,7 @@ private:
 
 	Sprite* flameIcon;
 	Sprite* rangeDigit;
+
 };
 
 #endif
