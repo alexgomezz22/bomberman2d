@@ -23,6 +23,7 @@ void Game::init()
 	initShaders();
 	menu.init(texProgram);
 	instructions.init(texProgram);
+	credits.init("images/credits.png", texProgram);
 	currentState = MAIN_MENU;
 	scene.init();
 }
@@ -45,14 +46,11 @@ bool Game::update(int deltaTime)
 			currentState = PLAYING;
 			break;
 		case Menu::INSTRUCTIONS:
-			instructions.update(left, right);
-			if (enter)
-				currentState = MAIN_MENU;
+			instructions.reset();
+			currentState = INSTRUCTIONS;
 			break;
-
 		case Menu::CREDITS:
-			if (enter)
-				currentState = MAIN_MENU;
+			currentState = CREDITS;
 			break;
 		case Menu::EXIT:
 			bPlay = false;
@@ -67,6 +65,11 @@ bool Game::update(int deltaTime)
 		break;
 
 	case INSTRUCTIONS:
+		instructions.update(left, right);
+		if (enter)
+			currentState = MAIN_MENU;
+		break;
+
 	case CREDITS:
 		if (enter)
 			currentState = MAIN_MENU;
@@ -96,6 +99,7 @@ void Game::render()
 		break;
 
 	case CREDITS:
+		credits.render();
 		break;
 	}
 }
