@@ -26,7 +26,7 @@ static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {30, 20}, {25, 8} }, 30, 4 , 1, { {14,5} }, 2, { {2,7}, {30,11} }},
 	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 3, 23, 2, { {11, 24}, {3, 6} }, 24, 2, 1, { {18, 22} }, 2, { {10, 5},{24, 8} }},
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 7, 2, { {19, 5} , {32, 21}}, 4, 24, 1, {{6, 1}}, 1, { {32, 1} } },
-	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 1, 7, 1, { {19, 5}  } }
+	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 7, 1, { {19, 5}  } }
 };
 
 // tiles de la puerta abierta de cada nivel
@@ -110,12 +110,13 @@ void Scene::update(int deltaTime)
 	for (int i = 0; i < NUM_LEVELS; i++)
 	{
 		bool down = Game::instance().getKey(GLFW_KEY_1 + i);
-		bool pressed = down && !keyWasDown[i];// solo en el frame en que se pulsa, sino se carga 60 veces 
+		bool pressed = down && !keyWasDown[i];// solo en el frame en que se pulsa, sino se carga muchas veces 
 		keyWasDown[i] = down;
 		if (pressed)
 		{
 			lives = 3;
 			loadLevel(i);
+			bombManager.resetBombRange();
 			return;
 		}
 	}
@@ -132,6 +133,7 @@ void Scene::update(int deltaTime)
 		{
 			lives = 3;
 			loadLevel(0);
+			bombManager.resetBombRange();
 		}
 		return;
 	}
@@ -322,7 +324,7 @@ void Scene::render()
 
 	// El marco y el HUD sin zoom
 	texProgram.setUniformMatrix4f("projection", projection);
-	hud.render(lives, enemies, player->getMaxBombs(), (timeLeft + 999) / 1000);
+	hud.render(lives, enemies, player->getMaxBombs(), bombManager.getBombRange(), (timeLeft + 999) / 1000);
 }
 
 void Scene::initShaders()

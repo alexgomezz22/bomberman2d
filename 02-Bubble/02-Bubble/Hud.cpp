@@ -17,6 +17,7 @@ Hud::Hud()
 	for (int i = 0; i < HUD_MAX_LIVES; i++) hearts[i] = NULL;
 
 	timeMin = timeSecTens = timeSecUnits = colon = NULL;
+	flameIcon = rangeDigit = NULL;
 }
 
 Hud::~Hud()
@@ -29,6 +30,8 @@ Hud::~Hud()
 	delete timeSecTens;
 	delete timeSecUnits;
 	delete colon;
+	delete flameIcon;
+	delete rangeDigit;
 }
 
 // Sprite de 16x16 de la hoja hud.png con nAnims animaciones (cada una con 1 frame)
@@ -81,7 +84,7 @@ void Hud::init(ShaderProgram& program)
 	bombIcon->setAnimationSpeed(0, 8);
 	bombIcon->addKeyframe(0, glm::vec2(48 / HUD_SHEET_W, 0 / HUD_SHEET_H));
 	bombIcon->changeAnimation(0);
-	bombIcon->setPosition(glm::vec2(480, HUD_Y));
+	bombIcon->setPosition(glm::vec2(448, HUD_Y));
 
 	// Dígitos: animación d = número d, en la fila y = 16, x = d * 16
 	enemyTens = makeCell(program, 10);
@@ -101,7 +104,7 @@ void Hud::init(ShaderProgram& program)
 	bombDigit->changeAnimation(0);
 	enemyTens->setPosition(glm::vec2(360, HUD_Y));
 	enemyUnits->setPosition(glm::vec2(376, HUD_Y));
-	bombDigit->setPosition(glm::vec2(504, HUD_Y));
+	bombDigit->setPosition(glm::vec2(472, HUD_Y));
 
 	// Temporizador: minuto, ":", segundos (centrado en el hueco de x = 48..144)
 	timeMin = makeCell(program, 10);
@@ -126,9 +129,25 @@ void Hud::init(ShaderProgram& program)
 	colon->addKeyframe(0, glm::vec2(64 / HUD_SHEET_W, 0 / HUD_SHEET_H));   // ":" en la hoja
 	colon->changeAnimation(0);
 	colon->setPosition(glm::vec2(80, HUD_Y));
+
+	// Alcance de la explosión: llama + dígito
+	flameIcon = makeCell(program, 1);
+	flameIcon->setAnimationSpeed(0, 8);
+	flameIcon->addKeyframe(0, glm::vec2(80 / HUD_SHEET_W, 0 / HUD_SHEET_H));
+	flameIcon->changeAnimation(0);
+	flameIcon->setPosition(glm::vec2(544, HUD_Y));
+
+	rangeDigit = makeCell(program, 10);
+	for (int d = 0; d < 10; d++)
+	{
+		rangeDigit->setAnimationSpeed(d, 8);
+		rangeDigit->addKeyframe(d, glm::vec2(d * 16 / HUD_SHEET_W, 16 / HUD_SHEET_H));
+	}
+	rangeDigit->changeAnimation(0);
+	rangeDigit->setPosition(glm::vec2(568, HUD_Y));
 }
 
-void Hud::render(int lives, int enemies, int maxBombs, int seconds)
+void Hud::render(int lives, int enemies, int maxBombs, int range, int seconds)
 {
 	if (enemies > 99) enemies = 99;
 	if (enemies < 0) enemies = 0;
@@ -166,4 +185,10 @@ void Hud::render(int lives, int enemies, int maxBombs, int seconds)
 	timeSecTens->render();
 	timeSecUnits->changeAnimation(seconds % 10);
 	timeSecUnits->render();
+
+	if (range > 9) range = 9;
+	if (range < 0) range = 0;
+	flameIcon->render();
+	rangeDigit->changeAnimation(range);
+	rangeDigit->render();
 }
