@@ -24,19 +24,21 @@ static const int LEVEL_TIME[NUM_LEVELS] = { 180, 150, 150, 180, 240 };   // 3:00
 static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los siguientes dos la pos de la puerta, los siguientes endermans, los siguientes creepers
 	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {30, 1}}, 26, 24, 1, { {5, 1} }, 1, { {19, 5} } },
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {30, 20}, {25, 8} }, 30, 4 , 1, { {14,5} }, 2, { {2,7}, {30,11} }},
-	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 3, 24, 2, { {11, 24}, {3, 6} }, 24, 2, 1, { {18, 22} }, 2, { {10, 5},{24, 8} }},
-	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 7, 2, { {19, 5} , {32, 21}}, 5, 23, 1, {{6, 1}}, 1, { {32, 1} } },
+	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 3, 23, 2, { {11, 24}, {3, 6} }, 24, 2, 1, { {18, 22} }, 2, { {10, 5},{24, 8} }},
+	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 7, 2, { {19, 5} , {32, 21}}, 4, 24, 1, {{6, 1}}, 1, { {32, 1} } },
 	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 1, 7, 1, { {19, 5}  } }
 };
 
 // tiles de la puerta abierta de cada nivel
-static const int DOOR_OPEN_TILES[NUM_LEVELS][2] = {
-	{ 344, 345 },    // nivel 1: puerta
-	{ 260, 260 },    // nivel 2: pon aquí los de tu portal
-	{ 260, 260 },
+static const int DOOR_OPEN_TILES[NUM_LEVELS][6] = {
 	{ 344, 345 },
+	{ 260, 260 },
+	{ 260, 260 },
+	{ 340, 340, 340, 340},
 	{ 344, 345 }
 };
+static const int DOOR_W[NUM_LEVELS] = { 1, 1, 1, 4, 1 };// ancho
+static const int DOOR_H[NUM_LEVELS] = { 2, 2, 2, 1, 2 };//alto
 Scene::Scene()
 {
 	map = MiddleMap = BackgroundMap = NULL;
@@ -218,10 +220,13 @@ void Scene::update(int deltaTime)
 			return;
 		}
 		doorOpen = true;
-		map->setTile(L.doorCol, L.doorRow, 0);      // ya no es sólida
-		map->setTile(L.doorCol, L.doorRow + 1, 0);
-		MiddleMap->setTile(L.doorCol, L.doorRow, DOOR_OPEN_TILES[currentLevel][0] + 1);
-		MiddleMap->setTile(L.doorCol, L.doorRow + 1, DOOR_OPEN_TILES[currentLevel][1] + 1);
+		int w = DOOR_W[currentLevel], h = DOOR_H[currentLevel];
+		for (int r = 0; r < h; r++)
+			for (int c = 0; c < w; c++)
+			{
+				map->setTile(L.doorCol + c, L.doorRow + r, 0);
+				MiddleMap->setTile(L.doorCol + c, L.doorRow + r, DOOR_OPEN_TILES[currentLevel][r * w + c] + 1);
+			}
 	}
 
 	// Steve toca la puerta abierta: siguiente nivel
@@ -229,7 +234,8 @@ void Scene::update(int deltaTime)
 	{
 		int ts = map->getTileSize();
 		int dx = L.doorCol * ts, dy = L.doorRow * ts;
-		if (p.x < dx + ts && p.x + ps.x > dx && p.y < dy + 2 * ts && p.y + ps.y > dy)
+		int dw = DOOR_W[currentLevel] * ts, dh = DOOR_H[currentLevel] * ts;
+		if (p.x < dx + dw && p.x + ps.x > dx && p.y < dy + dh && p.y + ps.y > dy)
 		{
 			loadLevel(currentLevel + 1 < NUM_LEVELS ? currentLevel + 1 : 0);
 			return;
