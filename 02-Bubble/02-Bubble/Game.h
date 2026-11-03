@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include "Menu.h"
 #include "Instructions.h"
+#include "Screen.h"
 
 
 #define SCREEN_WIDTH 640
@@ -51,6 +52,7 @@ private:
 	GameState currentState;
 	Scene scene;
 	Menu menu;
+	Screen credits;
 	Instructions instructions;
 	ShaderProgram texProgram;
 };

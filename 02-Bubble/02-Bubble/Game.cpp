@@ -23,6 +23,7 @@ void Game::init()
 	initShaders();
 	menu.init(texProgram);
 	instructions.init(texProgram);
+	credits.init("images/credits.png", texProgram);
 	currentState = MAIN_MENU;
 	scene.init();
 }
@@ -98,6 +99,7 @@ void Game::render()
 		break;
 
 	case CREDITS:
+		credits.render();
 		break;
 	}
 }
