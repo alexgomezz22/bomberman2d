@@ -13,6 +13,7 @@
 #include "Hud.h"
 #include "PowerUp.h"
 #include <vector>
+#include "Creeper.h"
 
 
 struct LevelData
@@ -24,6 +25,8 @@ struct LevelData
 	int doorCol, doorRow;     // tile de arriba de la puerta; -1 si el nivel no tiene puerta
 	int nEndermen;
 	int endermanTiles[4][2];
+	int nCreepers;
+	int creeperTiles[4][2];
 };
 
 
@@ -80,6 +83,7 @@ private:
 	int timeLeft;// ms que quedan
 	int freezeTime = 0;
 	std::vector<PowerUp*> powerups;
+	std::vector<Creeper*> creepers;
 
 };
 

@@ -17,19 +17,19 @@
 
 #define MAX_LIVES 5
 
-#define CAMERA_ZOOM 2     // 2  se ven 18x14 tiles; 3  12x9 (más cerca del Bomberman)
+#define CAMERA_ZOOM 2     // 2  se ven 18x14 tiles;
 #define VIEW_W 576        // tamaño del hueco del marco
 #define VIEW_H 448
 
 // segundos para pasarse cada nivel
 static const int LEVEL_TIME[NUM_LEVELS] = { 180, 150, 150, 180, 240 };   // 3:00, 2:30, 2:30, 3:00, 4:00
 
-static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los siguientes dos la pos de la puerta, los siguientes endermans
-	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {19, 5} }, 26, 24, 1, { {5, 1} }  },
-	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {14, 7}, {28, 4} }, 30, 4 },
-	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 1, 20, 1, { {10, 5} }, 24, 2},
-	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 20, 1, { {19, 5} } },
-	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 1, 20, 1, { {19, 5} } }
+static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna y fila del steve. los segundos numeros son el num de zombies y su pos. los siguientes dos la pos de la puerta, los siguientes endermans, los siguientes creepers
+	{ "levels/nivel01_Solidos.csv", "levels/nivel01_Medio.csv", "levels/nivel01_Fondo.csv", 1, 20, 1, { {30, 1}}, 26, 24, 1, { {5, 1} }, 1, { {19, 5} } },
+	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {30, 20}, {25, 8} }, 30, 4 , 1, { {14,5} }, 2, { {2,7}, {30,11} }},
+	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 3, 24, 2, { {11, 24}, {3, 6} }, 24, 2, 1, { {18, 22} }, 2, { {10, 5},{24, 8} }},
+	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 7, 2, { {19, 5} , {32, 21}}, 5, 23, 1, {{6, 1}}, 1, { {32, 1} } },
+	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 1, 7, 1, { {19, 5}  } }
 };
 
 Scene::Scene()
@@ -51,6 +51,7 @@ Scene::~Scene()
 	for (int i = 0; i < NUM_LEVELS; i++) delete introSprite[i];
 	delete gameOverSprite;
 	for (size_t i = 0; i < zombies.size(); i++) delete zombies[i];
+	for (size_t i = 0; i < creepers.size(); i++) delete creepers[i];
 }
 
 void Scene::init()
@@ -156,6 +157,7 @@ void Scene::update(int deltaTime)
 	{
 		for (size_t i = 0; i < zombies.size(); i++) zombies[i]->kill();
 		for (size_t i = 0; i < endermen.size(); i++) endermen[i]->kill();
+		for (size_t i = 0; i < creepers.size(); i++) creepers[i]->kill();
 	}
 	kWasDown = kDown;
 
@@ -186,9 +188,21 @@ void Scene::update(int deltaTime)
 				player->kill();
 		}
 	}
+	for (size_t i = 0; i < creepers.size(); i++)
+	{
+		creepers[i]->update(deltaTime);
+		if (!creepers[i]->isDead()) allDead = false;
+
+		if (creepers[i]->isAlive() && !player->isDead())
+		{
+			glm::ivec2 c = creepers[i]->getHitPos(), cs = creepers[i]->getHitSize();
+			if (p.x < c.x + cs.x && p.x + ps.x > c.x && p.y < c.y + cs.y && p.y + ps.y > c.y)
+				player->kill();
+		}
+	}
 
 	const LevelData& L = LEVELS[currentLevel];
-	bool hasEnemies = !zombies.empty() || !endermen.empty();
+	bool hasEnemies = !zombies.empty() || !endermen.empty() || !creepers.empty();
 
 	// Todos los enemigos muertos: se abre la puerta (o se pasa directo si el nivel no tiene)
 	if (hasEnemies && allDead && !player->isDead() && !doorOpen)
@@ -212,7 +226,7 @@ void Scene::update(int deltaTime)
 		int dx = L.doorCol * ts, dy = L.doorRow * ts;
 		if (p.x < dx + ts && p.x + ps.x > dx && p.y < dy + 2 * ts && p.y + ps.y > dy)
 		{
-			loadLevel(currentLevel + 1 < NUM_LEVELS ? currentLevel + 1 : 0);   // falta pantalla de victoria tras el 5
+			loadLevel(currentLevel + 1 < NUM_LEVELS ? currentLevel + 1 : 0);
 			return;
 		}
 	}
@@ -287,11 +301,13 @@ void Scene::render()
 	bombManager.render();
 	for (size_t i = 0; i < zombies.size(); i++) zombies[i]->render();
 	for (size_t i = 0; i < endermen.size(); i++) endermen[i]->render();
+	for (size_t i = 0; i < creepers.size(); i++) creepers[i]->render();
 	player->render();
 
 	int enemies = 0;
 	for (size_t i = 0; i < zombies.size(); i++)  if (zombies[i]->isAlive())  enemies++;
 	for (size_t i = 0; i < endermen.size(); i++) if (endermen[i]->isAlive()) enemies++;
+	for (size_t i = 0; i < creepers.size(); i++) if (creepers[i]->isAlive()) enemies++;
 
 	// El marco y el HUD sin zoom
 	texProgram.setUniformMatrix4f("projection", projection);
@@ -370,6 +386,20 @@ void Scene::loadLevel(int n)
 		e->setPosition(glm::vec2(L.endermanTiles[i][0] * map->getTileSize(),
 			L.endermanTiles[i][1] * map->getTileSize()));
 		endermen.push_back(e);
+	}
+
+	for (size_t i = 0; i < creepers.size(); i++) delete creepers[i];
+	creepers.clear();
+	for (int i = 0; i < L.nCreepers; i++)
+	{
+		Creeper* c = new Creeper();
+		c->init(disp, texProgram);
+		c->setTileMap(map);
+		c->setBombManager(&bombManager);
+		c->setPlayer(player);
+		c->setPosition(glm::vec2(L.creeperTiles[i][0] * map->getTileSize(),
+			L.creeperTiles[i][1] * map->getTileSize()));
+		creepers.push_back(c);
 	}
 
 	powerups = {};
