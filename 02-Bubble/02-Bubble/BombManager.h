@@ -25,6 +25,8 @@ public:
 	int countActive() const;
 	void setMap(TileMap* m) { map = m; }
 	void increaseBombRange();
+	int getBombRange() const { return bomb_range; }
+	void resetBombRange() { bomb_range = 1; }
 
 private:
 	void detonate(Bomb* b);

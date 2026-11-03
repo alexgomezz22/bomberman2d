@@ -24,7 +24,7 @@ struct LevelData
 	int zombieTiles[8][2];   // {columna, fila}
 	int doorCol, doorRow;     // tile de arriba de la puerta; -1 si el nivel no tiene puerta
 	int nEndermen;
-	int endermanTiles[4][2];
+	int endermanTiles[8][2];
 	int nCreepers;
 	int creeperTiles[4][2];
 };
