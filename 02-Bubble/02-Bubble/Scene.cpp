@@ -26,7 +26,7 @@ static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {30, 20}, {25, 8} }, 30, 4 , 1, { {14,5} }, 2, { {2,7}, {30,11} }},
 	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 3, 23, 2, { {11, 24}, {3, 6} }, 24, 2, 1, { {18, 22} }, 2, { {10, 5},{24, 8} }},
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 7, 2, { {19, 5} , {32, 21}}, 4, 24, 1, {{6, 1}}, 1, { {32, 1} } },
-	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 0, 0, 6, {{10 , 21}, {16 , 21}, {20 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
+	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 1, 1, 6, {{10 , 21}, {16 , 21}, {20 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
 };
 
 // tiles de la puerta abierta de cada nivel
@@ -44,6 +44,7 @@ Scene::Scene()
 	map = MiddleMap = BackgroundMap = NULL;
 	player = NULL;
 	gameOverSprite = NULL;
+	victorySprite = NULL;
 	for (int i = 0; i < NUM_LEVELS; i++) introSprite[i] = NULL;
 	lives = 3;
 	currentLevel = 0;
@@ -57,6 +58,7 @@ Scene::~Scene()
 	delete player;
 	for (int i = 0; i < NUM_LEVELS; i++) delete introSprite[i];
 	delete gameOverSprite;
+	delete victorySprite;
 	for (size_t i = 0; i < zombies.size(); i++) delete zombies[i];
 	for (size_t i = 0; i < creepers.size(); i++) delete creepers[i];
 }
@@ -97,6 +99,15 @@ void Scene::init()
 	gameOverSprite->changeAnimation(0);
 	gameOverSprite->setPosition(glm::vec2(0.f, 0.f));
 
+	// Pantalla de victoria
+	victoryTex.loadFromFile("images/congratulations.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	victorySprite = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH, SCREEN_HEIGHT), glm::vec2(1.f, 1.f), &victoryTex, &texProgram);
+	victorySprite->setNumberAnimations(1);
+	victorySprite->setAnimationSpeed(0, 8);
+	victorySprite->addKeyframe(0, glm::vec2(0.f, 0.f));
+	victorySprite->changeAnimation(0);
+	victorySprite->setPosition(glm::vec2(0.f, 0.f));
+
 	hud.init(texProgram);
 	loadLevel(0);   // carga mapas, Steve y zombies del nivel 1, y pone el estado en INTRO
 }
@@ -128,19 +139,7 @@ void Scene::update(int deltaTime)
 			state = STATE_PLAYING;
 		return;
 	}
-	/*
-	if (state == STATE_GAMEOVER)
-	{
-		if (stateTimer >= 1000 && Game::instance().getKey(GLFW_KEY_ENTER))
-		{
-			lives = 3;
-			loadLevel(0);
-			bombManager.resetBombRange();
-		}
-		return;
-	}
-	*/
-	if (state == STATE_GAMEOVER)
+	if (state == STATE_GAMEOVER || state == STATE_VICTORY)
 		return;
 
 	// STATE_PLAYING
@@ -244,7 +243,16 @@ void Scene::update(int deltaTime)
 		int dw = DOOR_W[currentLevel] * ts, dh = DOOR_H[currentLevel] * ts;
 		if (p.x < dx + dw && p.x + ps.x > dx && p.y < dy + dh && p.y + ps.y > dy)
 		{
-			loadLevel(currentLevel + 1 < NUM_LEVELS ? currentLevel + 1 : 0);
+			if (currentLevel + 1 >= NUM_LEVELS)
+			{
+				bombManager.clear();
+				bombManager.resetBombRange();
+				player->resetNumberBombs();
+				state = STATE_VICTORY;
+				stateTimer = 0;
+			}
+			else
+				loadLevel(currentLevel + 1);
 			return;
 		}
 	}
@@ -291,6 +299,7 @@ void Scene::render()
 
 	if (state == STATE_INTRO) { introSprite[currentLevel]->render(); return; }
 	if (state == STATE_GAMEOVER) { gameOverSprite->render();            return; }
+	if (state == STATE_VICTORY) { victorySprite->render(); return; }
 
 	// Cámara ortogonal: sigue a Steve sin enseñar nada fuera del mapa
 	glm::ivec2 hp = player->getHitPos(), hs = player->getHitSize();
@@ -485,5 +494,5 @@ void Scene::restart()
 
 bool Scene::canLeaveGameOver() const
 {
-	return state == STATE_GAMEOVER && stateTimer >= 1000;
+	return (state == STATE_GAMEOVER || state == STATE_VICTORY) && stateTimer >= 1000;
 }
