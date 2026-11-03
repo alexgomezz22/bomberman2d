@@ -117,6 +117,7 @@ void Scene::update(int deltaTime)
 			lives = 3;
 			loadLevel(i);
 			bombManager.resetBombRange();
+			player->resetNumberBombs();
 			return;
 		}
 	}
@@ -254,6 +255,10 @@ void Scene::update(int deltaTime)
 			bombManager.clear();
 			state = STATE_GAMEOVER;
 			stateTimer = 0;
+			// Reiniciar los powerups
+			bombManager.resetBombRange();	// Reiniciar rango bombas
+			player->resetNumberBombs();		// Reiniciar numero bombas
+											// Las vidas ya se reinician en otro lugar
 		}
 	}
 
