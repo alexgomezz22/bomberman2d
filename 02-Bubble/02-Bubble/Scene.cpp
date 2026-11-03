@@ -128,6 +128,7 @@ void Scene::update(int deltaTime)
 			state = STATE_PLAYING;
 		return;
 	}
+	/*
 	if (state == STATE_GAMEOVER)
 	{
 		if (stateTimer >= 1000 && Game::instance().getKey(GLFW_KEY_ENTER))
@@ -138,6 +139,9 @@ void Scene::update(int deltaTime)
 		}
 		return;
 	}
+	*/
+	if (state == STATE_GAMEOVER)
+		return;
 
 	// STATE_PLAYING
 	currentTime += deltaTime;
@@ -475,4 +479,11 @@ void Scene::restart()
 {
 	lives = 3;
 	loadLevel(0);
+	bombManager.resetBombRange();
+	player->resetNumberBombs();
+}
+
+bool Scene::canLeaveGameOver() const
+{
+	return state == STATE_GAMEOVER && stateTimer >= 1000;
 }

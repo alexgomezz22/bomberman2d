@@ -49,6 +49,7 @@ public:
 	void setPowerUp(int c, int r);
 	void addLife();
 	void restart();
+	bool canLeaveGameOver() const;
 
 private:
 	void initShaders();
