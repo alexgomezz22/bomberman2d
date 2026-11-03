@@ -48,6 +48,7 @@ public:
 	void render();
 	void setPowerUp(int c, int r);
 	void addLife();
+	void restart();
 
 private:
 	void initShaders();
