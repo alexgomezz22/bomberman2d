@@ -62,6 +62,11 @@ bool Game::update(int deltaTime)
 
 	case PLAYING:
 		scene.update(deltaTime);
+		if (enter && scene.canLeaveGameOver())
+		{
+			currentState = MAIN_MENU;
+			menu.reset();
+		}
 		break;
 
 	case INSTRUCTIONS:
