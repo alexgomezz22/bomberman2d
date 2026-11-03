@@ -17,6 +17,7 @@
     <ClInclude Include="Enderman.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Hud.h" />
+    <ClInclude Include="Instructions.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PowerUp.h" />
@@ -34,6 +35,7 @@
     <ClCompile Include="Enderman.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Hud.cpp" />
+    <ClCompile Include="Instructions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Player.cpp" />

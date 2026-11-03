@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include "Scene.h"
 #include "Menu.h"
+#include "Instructions.h"
 
 
 #define SCREEN_WIDTH 640
@@ -50,6 +51,7 @@ private:
 	GameState currentState;
 	Scene scene;
 	Menu menu;
+	Instructions instructions;
 	ShaderProgram texProgram;
 };
 

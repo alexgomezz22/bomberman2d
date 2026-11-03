@@ -4,6 +4,7 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Game.h"
+#include "Instructions.h"
 
 
 using namespace std;
@@ -21,6 +22,7 @@ void Game::init()
 
 	initShaders();
 	menu.init(texProgram);
+	instructions.init(texProgram);
 	currentState = MAIN_MENU;
 	scene.init();
 }
@@ -30,6 +32,8 @@ bool Game::update(int deltaTime)
 	const bool up = justPressed(GLFW_KEY_UP);
 	const bool down = justPressed(GLFW_KEY_DOWN);
 	const bool enter = justPressed(GLFW_KEY_ENTER);
+	const bool left = justPressed(GLFW_KEY_LEFT);
+	const bool right = justPressed(GLFW_KEY_RIGHT);
 
 	switch (currentState)
 	{
@@ -41,10 +45,14 @@ bool Game::update(int deltaTime)
 			currentState = PLAYING;
 			break;
 		case Menu::INSTRUCTIONS:
-			currentState = INSTRUCTIONS;
+			instructions.update(left, right);
+			if (enter)
+				currentState = MAIN_MENU;
 			break;
+
 		case Menu::CREDITS:
-			currentState = CREDITS;
+			if (enter)
+				currentState = MAIN_MENU;
 			break;
 		case Menu::EXIT:
 			bPlay = false;
@@ -84,6 +92,9 @@ void Game::render()
 		break;
 
 	case INSTRUCTIONS:
+		instructions.render();
+		break;
+
 	case CREDITS:
 		break;
 	}
