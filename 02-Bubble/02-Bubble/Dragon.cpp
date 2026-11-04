@@ -4,7 +4,7 @@
 #define DRAGON_SIZE 128 
 #define FIREBALL_SIZE 16
 #define DRAGON_SPEED 0.06f
-#define FIREBALL_SPEED 0.15f
+#define FIREBALL_SPEED 0.10f
 
 enum DragonAnims { FLY_LEFT, FLY_RIGHT, HIT_LEFT, HIT_RIGHT };
 
@@ -53,8 +53,9 @@ void Dragon::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) {
 
 void Dragon::update(int deltaTime, glm::vec2 playerPos) {
     if (hp <= 0) return;
+    sprite->update(deltaTime);
 
-    // 1. Recibir daño de bombas
+    // Recibir daño de bombas
     if (invulnerableTimer > 0) {
         invulnerableTimer -= deltaTime;
         if (invulnerableTimer <= 0) {
@@ -63,11 +64,17 @@ void Dragon::update(int deltaTime, glm::vec2 playerPos) {
     }
     else if (bombManager->isInExplosion(getHitPos(), getHitSize())) {
         hp--;
+        if (hp <= 0)
+        {
+            for (auto& fb : fireballs) delete fb.sprite;
+            fireballs.clear();
+            return;
+        }
         invulnerableTimer = 1500;
         sprite->changeAnimation(currentDir == 1 ? HIT_RIGHT : HIT_LEFT);
     }
 
-    // 2. Movimiento libre aleatorio del dragón
+    // Movimiento libre aleatorio del dragón
     wanderTimer -= deltaTime;
     if (wanderTimer <= 0) {
         wanderTimer = 1500 + (rand() % 1500);
@@ -91,14 +98,14 @@ void Dragon::update(int deltaTime, glm::vec2 playerPos) {
     }
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + posDragon.x), float(tileMapDispl.y + posDragon.y)));
 
-    // 3. Disparar bola de fuego en dirección aleatoria
+    // Disparar bola de fuego en dirección aleatoria
     shootTimer -= deltaTime;
     if (shootTimer <= 0 && invulnerableTimer <= 0) {
         shootTimer = 5000; // Frecuencia de disparo
         shootFireball();
     }
 
-    // 4. Actualizar movimiento, rebotes y tiempo de vida de las bolas de fuego
+    // Actualizar movimiento, rebotes y tiempo de vida de las bolas de fuego
     float minX = 16.f;
     float maxX = float(mapW - FIREBALL_SIZE - 16);
     float minY = 16.f;
@@ -124,6 +131,16 @@ void Dragon::update(int deltaTime, glm::vec2 playerPos) {
             }
         }
     }
+    for (size_t i = 0; i < fireballs.size(); ) //borrar las bolas de fuego apagadas
+    {
+        if (!fireballs[i].active)
+        {
+            delete fireballs[i].sprite;
+            fireballs.erase(fireballs.begin() + i);
+        }
+        else
+            i++;
+    }
 }
 
 void Dragon::shootFireball() {
@@ -137,7 +154,7 @@ void Dragon::shootFireball() {
     fb.pos = fbPos;
     fb.dir = dir;
     fb.active = true;
-    fb.lifetime = 5000.f; // 5 segundos de duración
+    fb.lifetime = 3500.f; // 3 segundos de duración
     fb.sprite = Sprite::createSprite(glm::ivec2(FIREBALL_SIZE, FIREBALL_SIZE), glm::vec2(1.f, 1.f), &fireballTex, shader);
     fb.sprite->setPosition(glm::vec2(tileMapDispl.x + fb.pos.x, tileMapDispl.y + fb.pos.y));
     fireballs.push_back(fb);

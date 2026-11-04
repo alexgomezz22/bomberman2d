@@ -18,6 +18,9 @@ Hud::Hud()
 
 	timeMin = timeSecTens = timeSecUnits = colon = NULL;
 	flameIcon = rangeDigit = NULL;
+	bossBar = NULL;
+	bossBarBg = NULL;
+	for (int i = 0; i <= 5; i++) bossBarFill[i] = NULL;
 }
 
 Hud::~Hud()
@@ -32,6 +35,9 @@ Hud::~Hud()
 	delete colon;
 	delete flameIcon;
 	delete rangeDigit;
+	delete bossBar;
+	delete bossBarBg;
+	for (int i = 0; i <= 5; i++) delete bossBarFill[i];
 }
 
 // Sprite de 16x16 de la hoja hud.png con nAnims animaciones (cada una con 1 frame)
@@ -145,6 +151,28 @@ void Hud::init(ShaderProgram& program)
 	}
 	rangeDigit->changeAnimation(0);
 	rangeDigit->setPosition(glm::vec2(568, HUD_Y));
+
+	bossBar = makeCell(program, 1);
+	bossBar->setAnimationSpeed(0, 8);
+	bossBar->addKeyframe(0, glm::vec2(0 / HUD_SHEET_W, 0 / HUD_SHEET_H));
+	bossBar->changeAnimation(0);
+
+	bossBarBg = Sprite::createSprite(glm::ivec2(204, 14), glm::vec2(16.f / HUD_SHEET_W, 16.f / HUD_SHEET_H), &sheet, &program);
+	bossBarBg->setNumberAnimations(1);
+	bossBarBg->setAnimationSpeed(0, 8);
+	bossBarBg->addKeyframe(0, glm::vec2(0.f, 0.f));
+	bossBarBg->changeAnimation(0);
+
+	// 2. Rellenos morados (de 40px a 200px según la vida)
+	for (int hp = 1; hp <= 5; hp++)
+	{
+		int fillWidth = hp * 40; // 40, 80, 120, 160, 200 px
+		bossBarFill[hp] = Sprite::createSprite(glm::ivec2(fillWidth, 10), glm::vec2(16.f / HUD_SHEET_W, 16.f / HUD_SHEET_H), &sheet, &program);
+		bossBarFill[hp]->setNumberAnimations(1);
+		bossBarFill[hp]->setAnimationSpeed(0, 8);
+		bossBarFill[hp]->addKeyframe(0, glm::vec2(0.f, 0.f));
+		bossBarFill[hp]->changeAnimation(0);
+	}
 }
 
 void Hud::render(int lives, int enemies, int maxBombs, int range, int seconds)
@@ -191,4 +219,32 @@ void Hud::render(int lives, int enemies, int maxBombs, int range, int seconds)
 	flameIcon->render();
 	rangeDigit->changeAnimation(range);
 	rangeDigit->render();
+}
+
+void Hud::renderBossBar(int currentHP, ShaderProgram& program)
+{
+	if (currentHP <= 0) return;
+	if (currentHP > 5) currentHP = 5;
+
+	float posX = 218.f; // Centrado exacto para la pantalla de 640px de ancho
+	float posY = 12.f;
+
+	// A) Dibujar fondo/borde en gris muy oscuro
+	if (bossBarBg != NULL)
+	{
+		program.setUniform4f("color", 0.12f, 0.12f, 0.12f, 0.9f);
+		bossBarBg->setPosition(glm::vec2(posX, posY));
+		bossBarBg->render();
+	}
+
+	// B) Dibujar relleno en morado Ender Dragon
+	if (bossBarFill[currentHP] != NULL)
+	{
+		program.setUniform4f("color", 0.75f, 0.15f, 0.85f, 1.0f);
+		bossBarFill[currentHP]->setPosition(glm::vec2(posX + 2.f, posY + 2.f));
+		bossBarFill[currentHP]->render();
+	}
+
+	// C) Restaurar tinte blanco para el resto del juego
+	program.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 }

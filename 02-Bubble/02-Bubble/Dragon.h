@@ -31,6 +31,7 @@ public:
     bool isAlive() const { return hp > 0; }
     bool isDead() const { return hp <= 0; }
     void kill() { hp = 0; }
+    int getHP() const { return hp; }
 
     glm::ivec2 getHitPos() const;
     glm::ivec2 getHitSize() const;

@@ -26,7 +26,7 @@ static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {30, 20}, {25, 8} }, 30, 4 , 1, { {14,5} }, 2, { {2,7}, {30,11} }},
 	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 3, 23, 2, { {11, 24}, {3, 6} }, 24, 2, 1, { {18, 22} }, 2, { {10, 5},{24, 8} }},
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 7, 2, { {19, 5} , {32, 21}}, 4, 24, 1, {{6, 1}}, 1, { {32, 1} } },
-	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 0, 0, 6, {{10 , 21}, {16 , 21}, {20 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
+	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 0, 0, 4, { {16 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
 };
 
 // tiles de la puerta abierta de cada nivel
@@ -343,11 +343,19 @@ void Scene::render()
 	for (size_t i = 0; i < zombies.size(); i++)  if (zombies[i]->isAlive())  enemies++;
 	for (size_t i = 0; i < endermen.size(); i++) if (endermen[i]->isAlive()) enemies++;
 	for (size_t i = 0; i < creepers.size(); i++) if (creepers[i]->isAlive()) enemies++;
+	if (enderDragon != NULL && enderDragon->isAlive()) enemies++;
 
 	if (enderDragon != NULL) enderDragon->render();
 
+
 	// El marco y el HUD sin zoom
 	texProgram.setUniformMatrix4f("projection", projection);
+
+	if (enderDragon != NULL && enderDragon->isAlive())
+	{
+		hud.renderBossBar(enderDragon->getHP(), texProgram);
+	}
+
 	hud.render(lives, enemies, player->getMaxBombs(), bombManager.getBombRange(), (timeLeft + 999) / 1000);
 }
 
