@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Enderman.h"
+#include "Audio.h"
 
 #define ENDER_SPEED 1
 #define ENDER_FALL_STEP 4
@@ -164,6 +165,7 @@ void Enderman::update(int deltaTime)
 	// Muerte por explosión
 	if (bombManager->isInExplosion(getHitPos(), getHitSize()))
 	{
+		Audio::instance().play(Audio::ENDERMAN_DEATH);
 		dying = true;
 		dyingTimer = 0;
 		sprite->changeAnimation(dir < 0 ? DIE_LEFT : DIE_RIGHT);

@@ -15,7 +15,12 @@ namespace
 		"sounds/click_stereo.wav",
 		"sounds/hit.wav",
 		"sounds/levelup.wav",
-		"sounds/powerup.wav"
+		"sounds/powerup.wav",
+		"sounds/creeper_death.wav",
+		"sounds/enderman_death.wav",
+		"sounds/enderdragon_hit.wav",
+		"sounds/end.wav",
+		"sounds/zombie_death.wav",
 	};
 
 	ma_engine engine;
@@ -23,7 +28,7 @@ namespace
 	bool voiceLoaded[Audio::NUM_SOUNDS][VOICES];
 	bool engineStarted = false;
 
-	const float SOUND_VOLUMES[Audio::NUM_SOUNDS] = { 0.2f, 0.2f, 0.2f, 0.1f, 1.0f, 0.05f, 0.2f };
+	const float SOUND_VOLUMES[Audio::NUM_SOUNDS] = { 0.2f, 0.2f, 0.2f, 0.1f, 1.0f, 0.05f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f };
 }
 
 
