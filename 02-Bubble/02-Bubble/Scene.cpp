@@ -27,7 +27,7 @@ static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {30, 20}, {25, 8} }, 30, 4 , 1, { {14,5} }, 2, { {2,7}, {30,11} }},
 	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 3, 23, 2, { {11, 24}, {3, 6} }, 24, 2, 1, { {18, 22} }, 2, { {10, 5},{24, 8} }},
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 7, 2, { {19, 5} , {32, 21}}, 4, 24, 1, {{6, 1}}, 1, { {32, 1} } },
-	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 0, 0, 4, { {16 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
+	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 3, 23, 4, { {16 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
 };
 
 // tiles de la puerta abierta de cada nivel
@@ -36,10 +36,10 @@ static const int DOOR_OPEN_TILES[NUM_LEVELS][6] = {
 	{ 260, 260 },
 	{ 260, 260 },
 	{ 340, 340, 340, 340},
-	{ 344, 345 }
+	{ 339, 339, 339, 339}
 };
-static const int DOOR_W[NUM_LEVELS] = { 1, 1, 1, 4, 1 };// ancho
-static const int DOOR_H[NUM_LEVELS] = { 2, 2, 2, 1, 2 };//alto
+static const int DOOR_W[NUM_LEVELS] = { 1, 1, 1, 4, 4 };// ancho
+static const int DOOR_H[NUM_LEVELS] = { 2, 2, 2, 1, 1};//alto
 Scene::Scene()
 {
 	map = MiddleMap = BackgroundMap = NULL;
