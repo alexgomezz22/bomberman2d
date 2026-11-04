@@ -33,7 +33,7 @@ public:
 
 public:
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram);
-	void update(int deltaTime);
+	void update(int deltaTime, bool godMode);
 	void render();
 	
 	void setTileMap(TileMap *tileMap);

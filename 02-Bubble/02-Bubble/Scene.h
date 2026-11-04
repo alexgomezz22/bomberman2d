@@ -73,6 +73,8 @@ private:
 	Sprite* gameOverSprite;
 	Texture victoryTex;
 	Sprite* victorySprite;
+	Texture shieldTex;
+	Sprite* shieldSprite;
 
 	void loadLevel(int n);
 	int currentLevel;
@@ -81,7 +83,7 @@ private:
 	Texture introTex[NUM_LEVELS];      
 	Sprite* introSprite[NUM_LEVELS];   
 	bool doorOpen;
-
+	bool godMode;
 	Hud hud;
 	int timeLeft;// ms que quedan
 	int freezeTime = 0;
