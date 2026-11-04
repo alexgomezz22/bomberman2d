@@ -29,6 +29,8 @@ public:
 	void playMusic(const char* path, bool loop = true);
 	void stopMusic();
 	void setMusicVolume(float volume);
+	void stop(Sound sound);
+
 
 private:
 	bool ready;

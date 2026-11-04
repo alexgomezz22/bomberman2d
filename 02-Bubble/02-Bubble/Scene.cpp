@@ -300,6 +300,7 @@ void Scene::update(int deltaTime)
 		{
 			if (currentLevel + 1 >= NUM_LEVELS)
 			{
+				Audio::instance().stop(Audio::END);
 				bombManager.clear();
 				bombManager.resetBombRange();
 				player->resetNumberBombs();

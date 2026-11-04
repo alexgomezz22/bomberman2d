@@ -163,3 +163,16 @@ void Audio::setMusicVolume(float volume)
 	if (musicLoaded)
 		ma_sound_set_volume(&music, musicVolume);
 }
+
+void Audio::stop(Sound sound)
+{
+	if (!ready)
+		return;
+
+	for (int v = 0; v < VOICES; v++)
+		if (voiceLoaded[sound][v] && ma_sound_is_playing(&voices[sound][v]))
+		{
+			ma_sound_stop(&voices[sound][v]);
+			ma_sound_seek_to_pcm_frame(&voices[sound][v], 0);
+		}
+}
