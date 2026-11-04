@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimKeyframes.h" />
+    <ClInclude Include="Audio.h" />
     <ClInclude Include="Bomb.h" />
     <ClInclude Include="BombManager.h" />
     <ClInclude Include="Creeper.h" />
@@ -33,6 +34,10 @@
     <ClInclude Include="Zombie.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Audio.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="BombManager.cpp" />
     <ClCompile Include="Creeper.cpp" />

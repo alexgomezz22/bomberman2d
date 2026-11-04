@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Zombie.h"
+#include "Audio.h"
 
 #define ZOMBIE_SPEED 1
 #define ZOMBIE_FALL_STEP 4
@@ -127,6 +128,7 @@ void Zombie::update(int deltaTime)
 	// Muerte por explosión
 	if (bombManager->isInExplosion(getHitPos(), getHitSize()))
 	{
+		Audio::instance().play(Audio::ZOMBIE_DEATH);
 		dying = true;
 		dyingTimer = 0;
 		sprite->changeAnimation(dir < 0 ? DIE_LEFT : DIE_RIGHT);

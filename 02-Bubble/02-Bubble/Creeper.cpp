@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include "Creeper.h"
+#include "Audio.h"
 
 #define CREEPER_SPEED 1            // igual que el enderman y el zombie
 #define CREEPER_MOVE_EVERY 2       // se mueve 1 px cada 2 frames
@@ -155,8 +156,10 @@ void Creeper::update(int deltaTime)
 	}
 
 	// Muerte por explosión
-	if (bombManager->isInExplosion(getHitPos(), getHitSize()))
+	if (bombManager->isInExplosion(getHitPos(), getHitSize())) {
+		Audio::instance().play(Audio::CREEPER_DEATH);
 		kill();
+	}
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posCreeper.x), float(tileMapDispl.y + posCreeper.y)));
 }

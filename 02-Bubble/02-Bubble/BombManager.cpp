@@ -1,5 +1,6 @@
 #include "BombManager.h"
 #include "Scene.h"
+#include "Audio.h"
 
 #define MAX_BOMB_RANGE 4
 
@@ -66,6 +67,7 @@ static void addFlame(std::vector<FlameCell>& v, int col, int row, int type, int 
 void BombManager::detonate(Bomb* b)
 {
 	b->explode();
+	Audio::instance().play(Audio::TNT_EXPLOSION);
 	std::vector<FlameCell>& f = b->getFlames();
 	glm::ivec2 t = b->getTile();
 
