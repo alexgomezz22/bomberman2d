@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Game.h"
 #include "Instructions.h"
-
+#include "Audio.h"
 
 using namespace std;
 
@@ -19,7 +19,7 @@ void Game::init()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	Audio::instance().init();
 	initShaders();
 	menu.init(texProgram);
 	instructions.init(texProgram);

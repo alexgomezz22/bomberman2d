@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include "Player.h"
 #include "Game.h"
-
+#include "Audio.h"
 
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 96
@@ -142,6 +142,8 @@ void Player::update(int deltaTime, bool godMode)
 
 		if (bombManager->addBomb(col, row))   // false si ya hay una bomba en ese tile
 		{
+			Audio::instance().play(Audio::TNT_SET);
+			Audio::instance().play(Audio::TNT_FUSE);
 			int anim = sprite->animation();
 			bool inAir = bJumping || anim == JUMP_LEFT || anim == JUMP_RIGHT
 				|| anim == FALL_LEFT || anim == FALL_RIGHT;
