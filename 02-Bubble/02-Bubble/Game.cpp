@@ -19,13 +19,14 @@ void Game::init()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	Audio::instance().init();
 	initShaders();
 	menu.init(texProgram);
 	instructions.init(texProgram);
 	credits.init("images/credits.png", texProgram);
-	currentState = MAIN_MENU;
 	scene.init();
+	goToMenu();
 }
 
 bool Game::update(int deltaTime)
@@ -179,4 +180,10 @@ void Game::initShaders()
 	texProgram.use();
 	texProgram.setUniformMatrix4f("projection", glm::ortho(0.f, float(SCREEN_WIDTH), float(SCREEN_HEIGHT), 0.f));
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void Game::goToMenu()
+{
+	currentState = MAIN_MENU;
+	menu.reset();
 }

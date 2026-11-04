@@ -26,6 +26,9 @@ public:
 	void shutdown();
 	void play(Sound sound);
 	void setMasterVolume(float volume);
+	void playMusic(const char* path, bool loop = true);
+	void stopMusic();
+	void setMusicVolume(float volume);
 
 private:
 	bool ready;

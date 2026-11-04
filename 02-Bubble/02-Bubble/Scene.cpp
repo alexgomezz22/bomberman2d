@@ -30,6 +30,14 @@ static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna
 	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 0, 0, 4, { {16 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
 };
 
+static const char* LEVEL_MUSIC[NUM_LEVELS] = {
+	"sounds/music/level1.mp3",
+	"sounds/music/level2.mp3",
+	"sounds/music/level3.mp3",
+	"sounds/music/level4.mp3",
+	"sounds/music/level5.mp3"
+};
+
 // tiles de la puerta abierta de cada nivel
 static const int DOOR_OPEN_TILES[NUM_LEVELS][6] = {
 	{ 344, 345 },
@@ -439,6 +447,7 @@ void Scene::initShaders()
 
 void Scene::loadLevel(int n)
 {
+	Audio::instance().playMusic(LEVEL_MUSIC[n]);
 	doorOpen = false;
 	timeLeft = LEVEL_TIME[n] * 1000;
 	currentLevel = n;
