@@ -36,7 +36,7 @@ static const int DOOR_OPEN_TILES[NUM_LEVELS][6] = {
 	{ 260, 260 },
 	{ 260, 260 },
 	{ 340, 340, 340, 340},
-	{ 340, 340, 340, 340}
+	{ 339, 339, 339, 339}
 };
 static const int DOOR_W[NUM_LEVELS] = { 1, 1, 1, 4, 4 };// ancho
 static const int DOOR_H[NUM_LEVELS] = { 2, 2, 2, 1, 1};//alto
