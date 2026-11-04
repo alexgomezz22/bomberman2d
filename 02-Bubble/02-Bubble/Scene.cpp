@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Game.h"
 #include <cstdio>
+#include "Audio.h"
 
 
 #define SCREEN_X 32
@@ -83,14 +84,14 @@ void Scene::init()
 		char path[64];
 		sprintf(path, "images/level%d.png", i + 1);
 		introTex[i].loadFromFile(path, TEXTURE_PIXEL_FORMAT_RGBA);
-		introTex[i].setMagFilter(GL_NEAREST);
-		introTex[i].setMinFilter(GL_NEAREST);
-		introSprite[i] = Sprite::createSprite(glm::ivec2(448, 448), glm::vec2(1.f, 1.f), &introTex[i], &texProgram);
+		introTex[i].setMagFilter(GL_LINEAR);
+		introTex[i].setMinFilter(GL_LINEAR);
+		introSprite[i] = Sprite::createSprite(glm::ivec2(640, 512), glm::vec2(1.f, 1.f), &introTex[i], &texProgram);
 		introSprite[i]->setNumberAnimations(1);
 		introSprite[i]->setAnimationSpeed(0, 8);
 		introSprite[i]->addKeyframe(0, glm::vec2(0.f, 0.f));
 		introSprite[i]->changeAnimation(0);
-		introSprite[i]->setPosition(glm::vec2(96.f, 32.f));
+		introSprite[i]->setPosition(glm::vec2(0.f, 0.f));
 	}
 
 	// Pantalla de game over
@@ -297,6 +298,7 @@ void Scene::update(int deltaTime)
 		// Si el jugador colisiona con el powerup
 		if ((*it)->checkCollision(player->getPosition(), player->getHitSize())) {
 			applyPowerUp((*it)->getType());			// Aplicar power Up
+			Audio::instance().play(Audio::POWERUP);
 			delete* it;                             // Liberar memoria del objeto
 			it = powerups.erase(it);                // Eliminar del vector de forma segura
 		}

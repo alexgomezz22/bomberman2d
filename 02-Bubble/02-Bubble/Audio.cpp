@@ -13,13 +13,17 @@ namespace
 		"sounds/tnt_pss.wav",
 		"sounds/tnt_explosion.wav",
 		"sounds/click_stereo.wav",
-		"sounds/hit.wav"
+		"sounds/hit.wav",
+		"sounds/levelup.wav",
+		"sounds/powerup.wav"
 	};
 
 	ma_engine engine;
 	ma_sound voices[Audio::NUM_SOUNDS][VOICES];
 	bool voiceLoaded[Audio::NUM_SOUNDS][VOICES];
 	bool engineStarted = false;
+
+	const float SOUND_VOLUMES[Audio::NUM_SOUNDS] = { 0.2f, 0.2f, 0.2f, 0.1f, 1.0f, 0.05f, 0.2f };
 }
 
 
@@ -59,6 +63,10 @@ bool Audio::init()
 
 		for (int v = 1; v < VOICES; v++)
 			voiceLoaded[s][v] = (ma_sound_init_copy(&engine, &voices[s][0], 0, NULL, &voices[s][v]) == MA_SUCCESS);
+
+		for (int v = 0; v < VOICES; v++)
+			if (voiceLoaded[s][v])
+				ma_sound_set_volume(&voices[s][v], SOUND_VOLUMES[s]);
 	}
 
 	ready = true;
