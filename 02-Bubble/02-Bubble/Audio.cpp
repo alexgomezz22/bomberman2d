@@ -22,6 +22,10 @@ namespace
 		"sounds/enderdragon_hit.wav",
 		"sounds/end.wav",
 		"sounds/zombie_death.wav",
+		"sounds/cave.wav",
+		"sounds/end_portal.wav",
+		"sounds/nether.wav",
+		"sounds/thunder.wav",
 	};
 
 	ma_engine engine;
@@ -29,7 +33,8 @@ namespace
 	bool voiceLoaded[Audio::NUM_SOUNDS][VOICES];
 	bool engineStarted = false;
 
-	const float SOUND_VOLUMES[Audio::NUM_SOUNDS] = { 0.2f, 0.2f, 0.2f, 0.1f, 1.0f, 0.05f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f };
+	const float SOUND_VOLUMES[Audio::NUM_SOUNDS] = { 0.2f, 0.2f, 0.2f, 0.1f, 1.0f, 0.05f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f,
+														0.2f, 0.2f, 0.2f, 0.2f };
 
 	ma_sound music;
 	bool musicLoaded = false;

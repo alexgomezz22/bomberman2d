@@ -46,6 +46,14 @@ static const int DOOR_OPEN_TILES[NUM_LEVELS][6] = {
 	{ 340, 340, 340, 340},
 	{ 339, 339, 339, 339}
 };
+
+static const Audio::Sound LEVEL_SOUND[NUM_LEVELS] = {
+	Audio::CAVE,
+	Audio::NETHER,
+	Audio::THUNDER,
+	Audio::END_PORTAL
+};
+
 static const int DOOR_W[NUM_LEVELS] = { 1, 1, 1, 4, 4 };// ancho
 static const int DOOR_H[NUM_LEVELS] = { 2, 2, 2, 1, 1};//alto
 Scene::Scene()
@@ -448,6 +456,7 @@ void Scene::initShaders()
 
 void Scene::loadLevel(int n)
 {
+	if (n > 0) Audio::instance().play(LEVEL_SOUND[currentLevel]);
 	Audio::instance().playMusic(LEVEL_MUSIC[n]);
 	doorOpen = false;
 	timeLeft = LEVEL_TIME[n] * 1000;
