@@ -44,6 +44,8 @@ Scene::Scene()
 	map = MiddleMap = BackgroundMap = NULL;
 	player = NULL;
 	gameOverSprite = NULL;
+	victorySprite = NULL;
+	shieldSprite = NULL;
 	for (int i = 0; i < NUM_LEVELS; i++) introSprite[i] = NULL;
 	lives = 3;
 	currentLevel = 0;
@@ -58,6 +60,8 @@ Scene::~Scene()
 	delete player;
 	for (int i = 0; i < NUM_LEVELS; i++) delete introSprite[i];
 	delete gameOverSprite;
+	delete victorySprite;
+	delete shieldSprite;
 	for (size_t i = 0; i < zombies.size(); i++) delete zombies[i];
 	for (size_t i = 0; i < creepers.size(); i++) delete creepers[i];
 	if (enderDragon != NULL) delete enderDragon;
@@ -99,6 +103,25 @@ void Scene::init()
 	gameOverSprite->changeAnimation(0);
 	gameOverSprite->setPosition(glm::vec2(0.f, 0.f));
 
+	// Pantalla de victoria
+	victoryTex.loadFromFile("images/congratulations.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	victorySprite = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH, SCREEN_HEIGHT), glm::vec2(1.f, 1.f), &victoryTex, &texProgram);
+	victorySprite->setNumberAnimations(1);
+	victorySprite->setAnimationSpeed(0, 8);
+	victorySprite->addKeyframe(0, glm::vec2(0.f, 0.f));
+	victorySprite->changeAnimation(0);
+	victorySprite->setPosition(glm::vec2(0.f, 0.f));
+
+	// Escudo del God Mode
+	shieldTex.loadFromFile("images/shield.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	shieldTex.setMinFilter(GL_NEAREST);
+	shieldTex.setMagFilter(GL_NEAREST);
+	shieldSprite = Sprite::createSprite(glm::ivec2(8, 8), glm::vec2(1.f, 1.f), &shieldTex, &texProgram);
+	shieldSprite->setNumberAnimations(1);
+	shieldSprite->setAnimationSpeed(0, 8);
+	shieldSprite->addKeyframe(0, glm::vec2(0.f, 0.f));
+	shieldSprite->changeAnimation(0);
+
 	hud.init(texProgram);
 	loadLevel(0);   // carga mapas, Steve y zombies del nivel 1, y pone el estado en INTRO
 }
@@ -119,6 +142,7 @@ void Scene::update(int deltaTime)
 			lives = 3;
 			loadLevel(i);
 			bombManager.resetBombRange();
+			player->resetNumberBombs();
 			return;
 		}
 	}
@@ -129,20 +153,12 @@ void Scene::update(int deltaTime)
 			state = STATE_PLAYING;
 		return;
 	}
-	if (state == STATE_GAMEOVER)
-	{
-		if (stateTimer >= 1000 && Game::instance().getKey(GLFW_KEY_ENTER))
-		{
-			lives = 3;
-			loadLevel(0);
-			bombManager.resetBombRange();
-		}
+	if (state == STATE_GAMEOVER || state == STATE_VICTORY)
 		return;
-	}
 
 	// STATE_PLAYING
 	currentTime += deltaTime;
-	player->update(deltaTime);
+	player->update(deltaTime, godMode);
 	bombManager.update(deltaTime);
 
 	// Cuenta atrás: al llegar a 0, Steve muere
@@ -153,7 +169,7 @@ void Scene::update(int deltaTime)
 			if (freezeTime < 0) freezeTime = 0;
 		} else {
 			timeLeft -= deltaTime;
-			if (timeLeft <= 0)
+			if (timeLeft <= 0 && !godMode)
 			{
 				timeLeft = 0;
 				player->kill();
@@ -173,6 +189,10 @@ void Scene::update(int deltaTime)
 	}
 	kWasDown = kDown;
 
+	// Tecla G activa god mode
+	if (Game::instance().justPressed(GLFW_KEY_G))
+		godMode = !godMode;
+
 	bool allDead = true;
 	glm::ivec2 p = player->getHitPos(), ps = player->getHitSize();
 
@@ -184,7 +204,7 @@ void Scene::update(int deltaTime)
 		if (zombies[i]->isAlive() && !player->isDead())
 		{
 			glm::ivec2 z = zombies[i]->getHitPos(), zs = zombies[i]->getHitSize();
-			if (p.x < z.x + zs.x && p.x + ps.x > z.x && p.y < z.y + zs.y && p.y + ps.y > z.y)
+			if ((p.x < z.x + zs.x && p.x + ps.x > z.x && p.y < z.y + zs.y && p.y + ps.y > z.y) && !godMode)
 				player->kill();
 		}
 	}
@@ -196,7 +216,7 @@ void Scene::update(int deltaTime)
 		if (endermen[i]->isAlive() && !player->isDead())
 		{
 			glm::ivec2 e = endermen[i]->getHitPos(), es = endermen[i]->getHitSize();
-			if (p.x < e.x + es.x && p.x + ps.x > e.x && p.y < e.y + es.y && p.y + ps.y > e.y)
+			if ((p.x < e.x + es.x && p.x + ps.x > e.x && p.y < e.y + es.y && p.y + ps.y > e.y) && !godMode)
 				player->kill();
 		}
 	}
@@ -208,7 +228,7 @@ void Scene::update(int deltaTime)
 		if (creepers[i]->isAlive() && !player->isDead())
 		{
 			glm::ivec2 c = creepers[i]->getHitPos(), cs = creepers[i]->getHitSize();
-			if (p.x < c.x + cs.x && p.x + ps.x > c.x && p.y < c.y + cs.y && p.y + ps.y > c.y)
+			if ((p.x < c.x + cs.x && p.x + ps.x > c.x && p.y < c.y + cs.y && p.y + ps.y > c.y) && !godMode)
 				player->kill();
 		}
 	}
@@ -261,7 +281,16 @@ void Scene::update(int deltaTime)
 		int dw = DOOR_W[currentLevel] * ts, dh = DOOR_H[currentLevel] * ts;
 		if (p.x < dx + dw && p.x + ps.x > dx && p.y < dy + dh && p.y + ps.y > dy)
 		{
-			loadLevel(currentLevel + 1 < NUM_LEVELS ? currentLevel + 1 : 0);
+			if (currentLevel + 1 >= NUM_LEVELS)
+			{
+				bombManager.clear();
+				bombManager.resetBombRange();
+				player->resetNumberBombs();
+				state = STATE_VICTORY;
+				stateTimer = 0;
+			}
+			else
+				loadLevel(currentLevel + 1);
 			return;
 		}
 	}
@@ -276,6 +305,10 @@ void Scene::update(int deltaTime)
 			bombManager.clear();
 			state = STATE_GAMEOVER;
 			stateTimer = 0;
+			// Reiniciar los powerups
+			bombManager.resetBombRange();	// Reiniciar rango bombas
+			player->resetNumberBombs();		// Reiniciar numero bombas
+											// Las vidas ya se reinician en otro lugar
 		}
 	}
 
@@ -304,6 +337,7 @@ void Scene::render()
 
 	if (state == STATE_INTRO) { introSprite[currentLevel]->render(); return; }
 	if (state == STATE_GAMEOVER) { gameOverSprite->render();            return; }
+	if (state == STATE_VICTORY) { victorySprite->render(); return; }
 
 	// Cámara ortogonal: sigue a Steve sin enseñar nada fuera del mapa
 	glm::ivec2 hp = player->getHitPos(), hs = player->getHitSize();
@@ -338,6 +372,10 @@ void Scene::render()
 	for (size_t i = 0; i < endermen.size(); i++) endermen[i]->render();
 	for (size_t i = 0; i < creepers.size(); i++) creepers[i]->render();
 	player->render();
+	if (godMode) {
+		shieldSprite->setPosition(glm::vec2(player->getPosition()) + glm::vec2(25.f, 15.f));
+		shieldSprite->render();
+	}
 
 	int enemies = 0;
 	for (size_t i = 0; i < zombies.size(); i++)  if (zombies[i]->isAlive())  enemies++;
@@ -513,4 +551,11 @@ void Scene::restart()
 {
 	lives = 3;
 	loadLevel(0);
+	bombManager.resetBombRange();
+	player->resetNumberBombs();
+}
+
+bool Scene::canLeaveGameOver() const
+{
+	return (state == STATE_GAMEOVER || state == STATE_VICTORY) && stateTimer >= 1000;
 }

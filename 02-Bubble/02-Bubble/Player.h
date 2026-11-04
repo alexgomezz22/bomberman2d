@@ -33,7 +33,7 @@ public:
 
 public:
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram);
-	void update(int deltaTime);
+	void update(int deltaTime, bool godMode);
 	void render();
 	
 	void setTileMap(TileMap *tileMap);
@@ -48,6 +48,7 @@ public:
 	glm::ivec2 getHitPos() const { return glm::ivec2(posPlayer.x + HIT_OFFSET_X, posPlayer.y + HIT_OFFSET_Y); }
 	glm::ivec2 getPosition() const { return glm::ivec2(posPlayer.x, posPlayer.y); }
 	glm::ivec2 getHitSize() const { return glm::ivec2(HIT_W, HIT_H); }
+	void resetNumberBombs() { maxBombs = 2; }
 
 private:
 	bool bPuttingBomb, bBWasDown;

@@ -34,7 +34,7 @@ struct LevelData
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
 
-enum SceneState { STATE_INTRO, STATE_PLAYING, STATE_GAMEOVER };
+enum SceneState { STATE_INTRO, STATE_PLAYING, STATE_GAMEOVER, STATE_VICTORY };
 
 class Scene
 {
@@ -49,6 +49,7 @@ public:
 	void setPowerUp(int c, int r);
 	void addLife();
 	void restart();
+	bool canLeaveGameOver() const;
 
 private:
 	void initShaders();
@@ -70,6 +71,10 @@ private:
 	int stateTimer;
 	Texture gameOverTex;
 	Sprite* gameOverSprite;
+	Texture victoryTex;
+	Sprite* victorySprite;
+	Texture shieldTex;
+	Sprite* shieldSprite;
 
 	void loadLevel(int n);
 	int currentLevel;
@@ -78,7 +83,7 @@ private:
 	Texture introTex[NUM_LEVELS];      
 	Sprite* introSprite[NUM_LEVELS];   
 	bool doorOpen;
-
+	bool godMode;
 	Hud hud;
 	int timeLeft;// ms que quedan
 	int freezeTime = 0;
