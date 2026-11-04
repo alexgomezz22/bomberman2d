@@ -347,6 +347,7 @@ bool Player::bombLandDown()
 
 void Player::die()
 {
+	Audio::instance().play(Audio::HIT);
 	dead = true;
 	deathTimer = 0;
 	bPuttingBomb = false;

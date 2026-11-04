@@ -11,7 +11,9 @@ namespace
 	const char* SOUND_PATHS[Audio::NUM_SOUNDS] = {
 		"sounds/tnt_set.wav",
 		"sounds/tnt_pss.wav",
-		"sounds/tnt_explosion.wav"
+		"sounds/tnt_explosion.wav",
+		"sounds/click_stereo.wav",
+		"sounds/hit.wav"
 	};
 
 	ma_engine engine;

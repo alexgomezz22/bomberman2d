@@ -2,7 +2,7 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Menu.h"
-
+#include "Audio.h"
 
 namespace
 {
@@ -69,6 +69,8 @@ void Menu::init(ShaderProgram& shaderProgram)
 
 Menu::Choice Menu::update(bool up, bool down, bool enter)
 {
+	if (up || down || enter) 
+		Audio::instance().play(Audio::CLICK);
 	if (up)
 		option = (option + NUM_OPTIONS - 1) % NUM_OPTIONS;
 	if (down)

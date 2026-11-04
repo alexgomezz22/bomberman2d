@@ -9,7 +9,7 @@ private:
 	Audio();
 
 public:
-	enum Sound { TNT_SET, TNT_FUSE, TNT_EXPLOSION, NUM_SOUNDS };
+	enum Sound { TNT_SET, TNT_FUSE, TNT_EXPLOSION, CLICK, HIT, NUM_SOUNDS };
 
 	static Audio& instance()
 	{
