@@ -1,5 +1,6 @@
 #include "Dragon.h"
 #include <cmath>
+#include "Audio.h"
 
 #define DRAGON_SIZE 128 
 #define FIREBALL_SIZE 16
@@ -78,10 +79,13 @@ void Dragon::update(int deltaTime, glm::vec2 playerPos) {
         {
             for (auto& fb : fireballs) delete fb.sprite;
             fireballs.clear();
-
+            Audio::instance().play(Audio::END);
             deathTimer = 4000.f; // 2 segundos desvaneciéndose
             sprite->changeAnimation(currentDir == 1 ? HIT_RIGHT : HIT_LEFT);
             return;
+        }
+        else {
+            Audio::instance().play(Audio::ENDERDRAGON_HIT);
         }
         invulnerableTimer = 1500;
         sprite->changeAnimation(currentDir == 1 ? HIT_RIGHT : HIT_LEFT);
