@@ -238,17 +238,25 @@ void Scene::update(int deltaTime)
 
 		// Colisión Steve vs Dragón
 		glm::ivec2 dPos = enderDragon->getHitPos(), dSize = enderDragon->getHitSize();
-		if (p.x < dPos.x + dSize.x && p.x + ps.x > dPos.x && p.y < dPos.y + dSize.y && p.y + ps.y > dPos.y) {
+		if ((p.x < dPos.x + dSize.x && p.x + ps.x > dPos.x && p.y < dPos.y + dSize.y && p.y + ps.y > dPos.y) && !godMode){
 			player->kill();
 		}
 
 		// Colisión Steve vs Bolas de fuego
 		for (auto& fb : enderDragon->getFireballs()) {
 			if (fb.active) {
-				if (p.x < fb.pos.x + 16 && p.x + ps.x > fb.pos.x && p.y < fb.pos.y + 16 && p.y + ps.y > fb.pos.y) {
+				if ((p.x < fb.pos.x + 16 && p.x + ps.x > fb.pos.x && p.y < fb.pos.y + 16 && p.y + ps.y > fb.pos.y) && !godMode){
 					player->kill();
 				}
 			}
+		}
+	}
+	if (enderDragon != NULL) {
+		enderDragon->update(deltaTime, glm::vec2(player->getHitPos()));
+
+		if (!enderDragon->isAlive() && !enderDragon->isDying()) {
+			delete enderDragon;
+			enderDragon = NULL;
 		}
 	}
 
@@ -485,7 +493,10 @@ void Scene::loadLevel(int n)
 		creepers.push_back(c);
 	}
 
-	if (enderDragon != NULL) { delete enderDragon; enderDragon = NULL; }
+	if (enderDragon != NULL) {
+		delete enderDragon;
+		enderDragon = NULL;
+	}
 
 	// Spawnear jefe SOLO en el nivel 5
 	if (n == 4) {

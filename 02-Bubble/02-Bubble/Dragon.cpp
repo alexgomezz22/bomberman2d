@@ -25,6 +25,7 @@ void Dragon::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) {
     shader = &shaderProgram;
     hp = 5;
     invulnerableTimer = 0;
+    deathTimer = 0.f;
 
     spritesheet.loadFromFile("images/drac.png", TEXTURE_PIXEL_FORMAT_RGBA);
     
@@ -43,19 +44,28 @@ void Dragon::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) {
 
     sprite->setAnimationSpeed(HIT_RIGHT, 8);
     sprite->addKeyframe(HIT_RIGHT, glm::vec2(0.f, 0.50f));
+    sprite->addKeyframe(HIT_RIGHT, glm::vec2(0.25f, 0.50f));
+    sprite->addKeyframe(HIT_RIGHT, glm::vec2(0.50f, 0.50f));
 
     sprite->setAnimationSpeed(HIT_LEFT, 8);
     sprite->addKeyframe(HIT_LEFT, glm::vec2(0.f, 0.75f));
+    sprite->addKeyframe(HIT_LEFT, glm::vec2(0.25f, 0.75f));
+    sprite->addKeyframe(HIT_LEFT, glm::vec2(0.50f, 0.75f));
 
     sprite->changeAnimation(FLY_LEFT);
     fireballTex.loadFromFile("images/Dragon_Fireball.png", TEXTURE_PIXEL_FORMAT_RGBA);
 }
 
 void Dragon::update(int deltaTime, glm::vec2 playerPos) {
-    if (hp <= 0) return;
+    if (hp <= 0) {
+        if (deathTimer > 0) {
+            deathTimer -= deltaTime;
+        }
+        return;
+    }
+
     sprite->update(deltaTime);
 
-    // Recibir daño de bombas
     if (invulnerableTimer > 0) {
         invulnerableTimer -= deltaTime;
         if (invulnerableTimer <= 0) {
@@ -68,6 +78,9 @@ void Dragon::update(int deltaTime, glm::vec2 playerPos) {
         {
             for (auto& fb : fireballs) delete fb.sprite;
             fireballs.clear();
+
+            deathTimer = 4000.f; // 2 segundos desvaneciéndose
+            sprite->changeAnimation(currentDir == 1 ? HIT_RIGHT : HIT_LEFT);
             return;
         }
         invulnerableTimer = 1500;
@@ -159,25 +172,35 @@ void Dragon::shootFireball() {
     fb.sprite->setPosition(glm::vec2(tileMapDispl.x + fb.pos.x, tileMapDispl.y + fb.pos.y));
     fireballs.push_back(fb);
 }
-
 void Dragon::render() {
     for (auto& fb : fireballs) {
         if (fb.active) {
-            // Transparencia normal = 1.0. En el último segundo (1000ms), baja linealmente a 0.0
             float alpha = 1.0f;
             if (fb.lifetime < 1000.f) {
                 alpha = fb.lifetime / 1000.f;
                 if (alpha < 0.f) alpha = 0.f;
             }
-
-            // Aplicar alpha al shader antes de dibujar la bola
             shader->setUniform4f("color", 1.0f, 1.0f, 1.0f, alpha);
             fb.sprite->render();
-            // Restaurar la opacidad completa para el resto del render
             shader->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
-    if (hp > 0) sprite->render();
+
+    if (hp > 0) {
+        sprite->render();
+    }
+    else if (deathTimer > 0) {
+        float progress = deathTimer / 2000.f;
+        if (progress < 0.f) progress = 0.f;
+
+        // Se va haciendo transparente
+        shader->setUniform4f("color", 1.0f, 1.0f, 1.0f, progress);
+
+        sprite->render();
+
+        // Restaurar estado
+        shader->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+    }
 }
 
 void Dragon::setPosition(const glm::vec2& pos) { posDragon = pos; }

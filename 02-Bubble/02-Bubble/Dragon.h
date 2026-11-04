@@ -36,6 +36,7 @@ public:
     glm::ivec2 getHitPos() const;
     glm::ivec2 getHitSize() const;
     std::vector<Fireball>& getFireballs() { return fireballs; }
+    bool isDying() const { return deathTimer > 0.f; }
 
 private:
     void shootFireball();
@@ -58,6 +59,7 @@ private:
     std::vector<Fireball> fireballs;
     glm::vec2 wanderDir;   // Dirección actual de vuelo aleatorio
     int wanderTimer;
+    float deathTimer;
     
 };
 
