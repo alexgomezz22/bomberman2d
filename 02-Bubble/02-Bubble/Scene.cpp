@@ -48,6 +48,7 @@ Scene::Scene()
 	lives = 3;
 	currentLevel = 0;
 	doorOpen = false;
+	enderDragon = NULL;
 }
 
 Scene::~Scene()
@@ -59,6 +60,7 @@ Scene::~Scene()
 	delete gameOverSprite;
 	for (size_t i = 0; i < zombies.size(); i++) delete zombies[i];
 	for (size_t i = 0; i < creepers.size(); i++) delete creepers[i];
+	if (enderDragon != NULL) delete enderDragon;
 }
 
 void Scene::init()
@@ -167,6 +169,7 @@ void Scene::update(int deltaTime)
 		for (size_t i = 0; i < zombies.size(); i++) zombies[i]->kill();
 		for (size_t i = 0; i < endermen.size(); i++) endermen[i]->kill();
 		for (size_t i = 0; i < creepers.size(); i++) creepers[i]->kill();
+		if (enderDragon != NULL) enderDragon->kill();
 	}
 	kWasDown = kDown;
 
@@ -207,6 +210,25 @@ void Scene::update(int deltaTime)
 			glm::ivec2 c = creepers[i]->getHitPos(), cs = creepers[i]->getHitSize();
 			if (p.x < c.x + cs.x && p.x + ps.x > c.x && p.y < c.y + cs.y && p.y + ps.y > c.y)
 				player->kill();
+		}
+	}
+	if (enderDragon != NULL && enderDragon->isAlive()) {
+		enderDragon->update(deltaTime, player->getPosition());
+		allDead = false;
+
+		// Colisión Steve vs Dragón
+		glm::ivec2 dPos = enderDragon->getHitPos(), dSize = enderDragon->getHitSize();
+		if (p.x < dPos.x + dSize.x && p.x + ps.x > dPos.x && p.y < dPos.y + dSize.y && p.y + ps.y > dPos.y) {
+			player->kill();
+		}
+
+		// Colisión Steve vs Bolas de fuego
+		for (auto& fb : enderDragon->getFireballs()) {
+			if (fb.active) {
+				if (p.x < fb.pos.x + 16 && p.x + ps.x > fb.pos.x && p.y < fb.pos.y + 16 && p.y + ps.y > fb.pos.y) {
+					player->kill();
+				}
+			}
 		}
 	}
 
@@ -322,6 +344,8 @@ void Scene::render()
 	for (size_t i = 0; i < endermen.size(); i++) if (endermen[i]->isAlive()) enemies++;
 	for (size_t i = 0; i < creepers.size(); i++) if (creepers[i]->isAlive()) enemies++;
 
+	if (enderDragon != NULL) enderDragon->render();
+
 	// El marco y el HUD sin zoom
 	texProgram.setUniformMatrix4f("projection", projection);
 	hud.render(lives, enemies, player->getMaxBombs(), bombManager.getBombRange(), (timeLeft + 999) / 1000);
@@ -413,6 +437,17 @@ void Scene::loadLevel(int n)
 		c->setPosition(glm::vec2(L.creeperTiles[i][0] * map->getTileSize(),
 			L.creeperTiles[i][1] * map->getTileSize()));
 		creepers.push_back(c);
+	}
+
+	if (enderDragon != NULL) { delete enderDragon; enderDragon = NULL; }
+
+	// Spawnear jefe SOLO en el nivel 5
+	if (n == 4) {
+		enderDragon = new Dragon();
+		enderDragon->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+		enderDragon->setTileMap(map);
+		enderDragon->setBombManager(&bombManager);
+		enderDragon->setPosition(glm::vec2(15 * map->getTileSize(), 5 * map->getTileSize())); // Posición inicial
 	}
 
 	powerups = {};

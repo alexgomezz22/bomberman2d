@@ -14,7 +14,7 @@
 #include "PowerUp.h"
 #include <vector>
 #include "Creeper.h"
-
+#include "Dragon.h"
 
 struct LevelData
 {
@@ -84,6 +84,7 @@ private:
 	int freezeTime = 0;
 	std::vector<PowerUp*> powerups;
 	std::vector<Creeper*> creepers;
+	Dragon* enderDragon;
 
 };
 
