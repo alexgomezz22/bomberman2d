@@ -38,11 +38,10 @@ public:
 	void mouseMove(int x, int y);
 	void mousePress(int button);
 	void mouseRelease(int button);
-
+	bool justPressed(int key) const;
 	bool getKey(int key) const;
 
 private:
-	bool justPressed(int key) const;
 	void initShaders();
 
 private:

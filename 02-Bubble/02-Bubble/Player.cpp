@@ -115,7 +115,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	
 }
 
-void Player::update(int deltaTime)
+void Player::update(int deltaTime, bool godMode)
 {
 	if (dead)
 	{
@@ -295,7 +295,7 @@ void Player::update(int deltaTime)
 	}
 
 	glm::ivec2 hitPos(posPlayer.x + HIT_OFFSET_X, posPlayer.y + HIT_OFFSET_Y);
-	if (bombManager->isInExplosion(hitPos, glm::ivec2(HIT_W, HIT_H)))
+	if (bombManager->isInExplosion(hitPos, glm::ivec2(HIT_W, HIT_H)) && !godMode)
 		die();
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));

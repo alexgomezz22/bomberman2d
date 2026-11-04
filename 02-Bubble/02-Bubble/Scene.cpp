@@ -45,10 +45,12 @@ Scene::Scene()
 	player = NULL;
 	gameOverSprite = NULL;
 	victorySprite = NULL;
+	shieldSprite = NULL;
 	for (int i = 0; i < NUM_LEVELS; i++) introSprite[i] = NULL;
 	lives = 3;
 	currentLevel = 0;
 	doorOpen = false;
+	godMode = false;
 }
 
 Scene::~Scene()
@@ -59,6 +61,7 @@ Scene::~Scene()
 	for (int i = 0; i < NUM_LEVELS; i++) delete introSprite[i];
 	delete gameOverSprite;
 	delete victorySprite;
+	delete shieldSprite;
 	for (size_t i = 0; i < zombies.size(); i++) delete zombies[i];
 	for (size_t i = 0; i < creepers.size(); i++) delete creepers[i];
 }
@@ -108,6 +111,16 @@ void Scene::init()
 	victorySprite->changeAnimation(0);
 	victorySprite->setPosition(glm::vec2(0.f, 0.f));
 
+	// Escudo del God Mode
+	shieldTex.loadFromFile("images/shield.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	shieldTex.setMinFilter(GL_NEAREST);
+	shieldTex.setMagFilter(GL_NEAREST);
+	shieldSprite = Sprite::createSprite(glm::ivec2(8, 8), glm::vec2(1.f, 1.f), &shieldTex, &texProgram);
+	shieldSprite->setNumberAnimations(1);
+	shieldSprite->setAnimationSpeed(0, 8);
+	shieldSprite->addKeyframe(0, glm::vec2(0.f, 0.f));
+	shieldSprite->changeAnimation(0);
+
 	hud.init(texProgram);
 	loadLevel(0);   // carga mapas, Steve y zombies del nivel 1, y pone el estado en INTRO
 }
@@ -144,7 +157,7 @@ void Scene::update(int deltaTime)
 
 	// STATE_PLAYING
 	currentTime += deltaTime;
-	player->update(deltaTime);
+	player->update(deltaTime, godMode);
 	bombManager.update(deltaTime);
 
 	// Cuenta atrás: al llegar a 0, Steve muere
@@ -155,7 +168,7 @@ void Scene::update(int deltaTime)
 			if (freezeTime < 0) freezeTime = 0;
 		} else {
 			timeLeft -= deltaTime;
-			if (timeLeft <= 0)
+			if (timeLeft <= 0 && !godMode)
 			{
 				timeLeft = 0;
 				player->kill();
@@ -174,6 +187,10 @@ void Scene::update(int deltaTime)
 	}
 	kWasDown = kDown;
 
+	// Tecla G activa god mode
+	if (Game::instance().justPressed(GLFW_KEY_G))
+		godMode = !godMode;
+
 	bool allDead = true;
 	glm::ivec2 p = player->getHitPos(), ps = player->getHitSize();
 
@@ -185,7 +202,7 @@ void Scene::update(int deltaTime)
 		if (zombies[i]->isAlive() && !player->isDead())
 		{
 			glm::ivec2 z = zombies[i]->getHitPos(), zs = zombies[i]->getHitSize();
-			if (p.x < z.x + zs.x && p.x + ps.x > z.x && p.y < z.y + zs.y && p.y + ps.y > z.y)
+			if ((p.x < z.x + zs.x && p.x + ps.x > z.x && p.y < z.y + zs.y && p.y + ps.y > z.y) && !godMode)
 				player->kill();
 		}
 	}
@@ -197,7 +214,7 @@ void Scene::update(int deltaTime)
 		if (endermen[i]->isAlive() && !player->isDead())
 		{
 			glm::ivec2 e = endermen[i]->getHitPos(), es = endermen[i]->getHitSize();
-			if (p.x < e.x + es.x && p.x + ps.x > e.x && p.y < e.y + es.y && p.y + ps.y > e.y)
+			if ((p.x < e.x + es.x && p.x + ps.x > e.x && p.y < e.y + es.y && p.y + ps.y > e.y) && !godMode)
 				player->kill();
 		}
 	}
@@ -209,7 +226,7 @@ void Scene::update(int deltaTime)
 		if (creepers[i]->isAlive() && !player->isDead())
 		{
 			glm::ivec2 c = creepers[i]->getHitPos(), cs = creepers[i]->getHitSize();
-			if (p.x < c.x + cs.x && p.x + ps.x > c.x && p.y < c.y + cs.y && p.y + ps.y > c.y)
+			if ((p.x < c.x + cs.x && p.x + ps.x > c.x && p.y < c.y + cs.y && p.y + ps.y > c.y) && !godMode)
 				player->kill();
 		}
 	}
@@ -334,6 +351,10 @@ void Scene::render()
 	for (size_t i = 0; i < endermen.size(); i++) endermen[i]->render();
 	for (size_t i = 0; i < creepers.size(); i++) creepers[i]->render();
 	player->render();
+	if (godMode) {
+		shieldSprite->setPosition(glm::vec2(player->getPosition()) + glm::vec2(25.f, 15.f));
+		shieldSprite->render();
+	}
 
 	int enemies = 0;
 	for (size_t i = 0; i < zombies.size(); i++)  if (zombies[i]->isAlive())  enemies++;
