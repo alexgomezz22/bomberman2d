@@ -26,7 +26,7 @@ static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna
 	{ "levels/nivel02_Solidos.csv", "levels/nivel02_Medio.csv", "levels/nivel02_Fondo.csv", 1, 20, 2, { {30, 20}, {25, 8} }, 30, 4 , 1, { {14,5} }, 2, { {2,7}, {30,11} }},
 	{ "levels/nivel03_Solidos.csv", "levels/nivel03_Medio.csv", "levels/nivel03_Fondo.csv", 3, 23, 2, { {11, 24}, {3, 6} }, 24, 2, 1, { {18, 22} }, 2, { {10, 5},{24, 8} }},
 	{ "levels/nivel04_Solidos.csv", "levels/nivel04_Medio.csv", "levels/nivel04_Fondo.csv", 1, 7, 2, { {19, 5} , {32, 21}}, 4, 24, 1, {{6, 1}}, 1, { {32, 1} } },
-	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 1, 1, 6, {{10 , 21}, {16 , 21}, {20 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
+	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 0, 0, 4, { {16 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
 };
 
 // tiles de la puerta abierta de cada nivel
@@ -50,7 +50,7 @@ Scene::Scene()
 	lives = 3;
 	currentLevel = 0;
 	doorOpen = false;
-	godMode = false;
+	enderDragon = NULL;
 }
 
 Scene::~Scene()
@@ -64,6 +64,7 @@ Scene::~Scene()
 	delete shieldSprite;
 	for (size_t i = 0; i < zombies.size(); i++) delete zombies[i];
 	for (size_t i = 0; i < creepers.size(); i++) delete creepers[i];
+	if (enderDragon != NULL) delete enderDragon;
 }
 
 void Scene::init()
@@ -184,6 +185,7 @@ void Scene::update(int deltaTime)
 		for (size_t i = 0; i < zombies.size(); i++) zombies[i]->kill();
 		for (size_t i = 0; i < endermen.size(); i++) endermen[i]->kill();
 		for (size_t i = 0; i < creepers.size(); i++) creepers[i]->kill();
+		if (enderDragon != NULL) enderDragon->kill();
 	}
 	kWasDown = kDown;
 
@@ -228,6 +230,33 @@ void Scene::update(int deltaTime)
 			glm::ivec2 c = creepers[i]->getHitPos(), cs = creepers[i]->getHitSize();
 			if ((p.x < c.x + cs.x && p.x + ps.x > c.x && p.y < c.y + cs.y && p.y + ps.y > c.y) && !godMode)
 				player->kill();
+		}
+	}
+	if (enderDragon != NULL && enderDragon->isAlive()) {
+		enderDragon->update(deltaTime, player->getPosition());
+		allDead = false;
+
+		// Colisión Steve vs Dragón
+		glm::ivec2 dPos = enderDragon->getHitPos(), dSize = enderDragon->getHitSize();
+		if ((p.x < dPos.x + dSize.x && p.x + ps.x > dPos.x && p.y < dPos.y + dSize.y && p.y + ps.y > dPos.y) && !godMode){
+			player->kill();
+		}
+
+		// Colisión Steve vs Bolas de fuego
+		for (auto& fb : enderDragon->getFireballs()) {
+			if (fb.active) {
+				if ((p.x < fb.pos.x + 16 && p.x + ps.x > fb.pos.x && p.y < fb.pos.y + 16 && p.y + ps.y > fb.pos.y) && !godMode){
+					player->kill();
+				}
+			}
+		}
+	}
+	if (enderDragon != NULL) {
+		enderDragon->update(deltaTime, glm::vec2(player->getHitPos()));
+
+		if (!enderDragon->isAlive() && !enderDragon->isDying()) {
+			delete enderDragon;
+			enderDragon = NULL;
 		}
 	}
 
@@ -360,9 +389,19 @@ void Scene::render()
 	for (size_t i = 0; i < zombies.size(); i++)  if (zombies[i]->isAlive())  enemies++;
 	for (size_t i = 0; i < endermen.size(); i++) if (endermen[i]->isAlive()) enemies++;
 	for (size_t i = 0; i < creepers.size(); i++) if (creepers[i]->isAlive()) enemies++;
+	if (enderDragon != NULL && enderDragon->isAlive()) enemies++;
+
+	if (enderDragon != NULL) enderDragon->render();
+
 
 	// El marco y el HUD sin zoom
 	texProgram.setUniformMatrix4f("projection", projection);
+
+	if (enderDragon != NULL && enderDragon->isAlive())
+	{
+		hud.renderBossBar(enderDragon->getHP(), texProgram);
+	}
+
 	hud.render(lives, enemies, player->getMaxBombs(), bombManager.getBombRange(), (timeLeft + 999) / 1000);
 }
 
@@ -452,6 +491,20 @@ void Scene::loadLevel(int n)
 		c->setPosition(glm::vec2(L.creeperTiles[i][0] * map->getTileSize(),
 			L.creeperTiles[i][1] * map->getTileSize()));
 		creepers.push_back(c);
+	}
+
+	if (enderDragon != NULL) {
+		delete enderDragon;
+		enderDragon = NULL;
+	}
+
+	// Spawnear jefe SOLO en el nivel 5
+	if (n == 4) {
+		enderDragon = new Dragon();
+		enderDragon->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+		enderDragon->setTileMap(map);
+		enderDragon->setBombManager(&bombManager);
+		enderDragon->setPosition(glm::vec2(15 * map->getTileSize(), 5 * map->getTileSize())); // Posición inicial
 	}
 
 	powerups = {};

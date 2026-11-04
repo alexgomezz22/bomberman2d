@@ -14,6 +14,7 @@ public:
 
 	void init(ShaderProgram& program);
 	void render(int lives, int enemies, int maxBombs, int range, int seconds);
+	void renderBossBar(int currentHP, ShaderProgram& program);
 
 private:
 	Sprite* makeCell(ShaderProgram& program, int nAnims);
@@ -34,6 +35,12 @@ private:
 
 	Sprite* flameIcon;
 	Sprite* rangeDigit;
+
+	Sprite* bossBar;
+
+	Sprite* bossBarBg;
+	Sprite* bossBarFill[6];
+
 
 };
 
