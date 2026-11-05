@@ -309,6 +309,7 @@ void Scene::update(int deltaTime)
 			if (currentLevel + 1 >= NUM_LEVELS)
 			{
 				Audio::instance().stop(Audio::END);
+				Audio::instance().play(Audio::CONGRATULATIONS);
 				bombManager.clear();
 				bombManager.resetBombRange();
 				player->resetNumberBombs();
@@ -328,6 +329,7 @@ void Scene::update(int deltaTime)
 			loadLevel(currentLevel);   // recarga el nivel: bloques y enemigos como al inicio
 		else
 		{
+			Audio::instance().stop(Audio::END);
 			bombManager.clear();
 			state = STATE_GAMEOVER;
 			stateTimer = 0;
@@ -456,7 +458,7 @@ void Scene::initShaders()
 
 void Scene::loadLevel(int n)
 {
-	if (n > 0) Audio::instance().play(LEVEL_SOUND[currentLevel]);
+	if (n > 0) Audio::instance().play(LEVEL_SOUND[n-1]);
 	Audio::instance().playMusic(LEVEL_MUSIC[n]);
 	doorOpen = false;
 	timeLeft = LEVEL_TIME[n] * 1000;
