@@ -466,6 +466,7 @@ void Scene::loadLevel(int n)
 {
 	if (n > 0) {
 		Audio::instance().stop(Audio::END_PORTAL);
+		Audio::instance().stop(Audio::END);
 		Audio::instance().play(LEVEL_SOUND[n - 1]);
 	}
 	Audio::instance().playMusic(LEVEL_MUSIC[n]);
