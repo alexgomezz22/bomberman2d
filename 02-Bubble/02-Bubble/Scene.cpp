@@ -30,6 +30,14 @@ static const LevelData LEVELS[NUM_LEVELS] = {//los dos primeros nums son columna
 	{ "levels/nivel05_Solidos.csv", "levels/nivel05_Medio.csv", "levels/nivel05_Fondo.csv", 5, 22, 0, { }, 3, 23, 4, { {16 , 21}, {24 ,21}, {5 , 8}, {23 , 7} }, 0, { } }
 };
 
+static const char* LEVEL_MUSIC[NUM_LEVELS] = {
+	"sounds/music/level1.mp3",
+	"sounds/music/level2.mp3",
+	"sounds/music/level3.mp3",
+	"sounds/music/level4.mp3",
+	"sounds/music/level5.mp3"
+};
+
 // tiles de la puerta abierta de cada nivel
 static const int DOOR_OPEN_TILES[NUM_LEVELS][6] = {
 	{ 344, 345 },
@@ -38,6 +46,14 @@ static const int DOOR_OPEN_TILES[NUM_LEVELS][6] = {
 	{ 340, 340, 340, 340},
 	{ 339, 339, 339, 339}
 };
+
+static const Audio::Sound LEVEL_SOUND[NUM_LEVELS] = {
+	Audio::CAVE,
+	Audio::NETHER,
+	Audio::THUNDER,
+	Audio::END_PORTAL
+};
+
 static const int DOOR_W[NUM_LEVELS] = { 1, 1, 1, 4, 4 };// ancho
 static const int DOOR_H[NUM_LEVELS] = { 2, 2, 2, 1, 1};//alto
 Scene::Scene()
@@ -273,6 +289,12 @@ void Scene::update(int deltaTime)
 			return;
 		}
 		doorOpen = true;
+		if (currentLevel == 0)
+			Audio::instance().play(Audio::DOOR);
+		else if (currentLevel == 1 || currentLevel == 2) 
+			Audio::instance().play(Audio::IGNITE);
+		else if (currentLevel == 3 || currentLevel == 4)
+			Audio::instance().play(Audio::END_PORTAL);
 		int w = DOOR_W[currentLevel], h = DOOR_H[currentLevel];
 		for (int r = 0; r < h; r++)
 			for (int c = 0; c < w; c++)
@@ -292,6 +314,8 @@ void Scene::update(int deltaTime)
 		{
 			if (currentLevel + 1 >= NUM_LEVELS)
 			{
+				Audio::instance().stop(Audio::END);
+				Audio::instance().play(Audio::CONGRATULATIONS);
 				bombManager.clear();
 				bombManager.resetBombRange();
 				player->resetNumberBombs();
@@ -311,6 +335,7 @@ void Scene::update(int deltaTime)
 			loadLevel(currentLevel);   // recarga el nivel: bloques y enemigos como al inicio
 		else
 		{
+			Audio::instance().stop(Audio::END);
 			bombManager.clear();
 			state = STATE_GAMEOVER;
 			stateTimer = 0;
@@ -439,6 +464,11 @@ void Scene::initShaders()
 
 void Scene::loadLevel(int n)
 {
+	if (n > 0) {
+		Audio::instance().stop(Audio::END_PORTAL);
+		Audio::instance().play(LEVEL_SOUND[n - 1]);
+	}
+	Audio::instance().playMusic(LEVEL_MUSIC[n]);
 	doorOpen = false;
 	timeLeft = LEVEL_TIME[n] * 1000;
 	currentLevel = n;

@@ -100,4 +100,5 @@ void Menu::render()
 void Menu::reset()
 {
 	option = 0;
+	Audio::instance().playMusic("sounds/music/menu.mp3");
 }

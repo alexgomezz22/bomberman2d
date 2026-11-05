@@ -2,6 +2,7 @@
 #include "miniaudio.h"
 #include <iostream>
 #include "Audio.h"
+#include <string>
 
 
 namespace
@@ -21,6 +22,13 @@ namespace
 		"sounds/enderdragon_hit.wav",
 		"sounds/end.wav",
 		"sounds/zombie_death.wav",
+		"sounds/cave.wav",
+		"sounds/end_portal.wav",
+		"sounds/nether.wav",
+		"sounds/thunder.wav",
+		"sounds/congratulations.wav",
+		"sounds/ignite.wav",
+		"sounds/door_open.wav"
 	};
 
 	ma_engine engine;
@@ -28,7 +36,13 @@ namespace
 	bool voiceLoaded[Audio::NUM_SOUNDS][VOICES];
 	bool engineStarted = false;
 
-	const float SOUND_VOLUMES[Audio::NUM_SOUNDS] = { 0.2f, 0.2f, 0.2f, 0.1f, 1.0f, 0.05f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f };
+	const float SOUND_VOLUMES[Audio::NUM_SOUNDS] = { 0.2f, 0.2f, 0.2f, 0.1f, 1.0f, 0.05f, 0.2f, 0.2f, 0.1f, 0.2f, 0.2f, 0.2f,
+														0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f };
+
+	ma_sound music;
+	bool musicLoaded = false;
+	float musicVolume = 0.5f;
+	std::string currentMusic;
 }
 
 
@@ -90,7 +104,7 @@ void Audio::shutdown()
 				ma_sound_uninit(&voices[s][v]);
 				voiceLoaded[s][v] = false;
 			}
-
+	stopMusic();
 	if (engineStarted)
 	{
 		ma_engine_uninit(&engine);
@@ -119,4 +133,54 @@ void Audio::setMasterVolume(float volume)
 {
 	if (ready)
 		ma_engine_set_volume(&engine, volume);
+}
+
+void Audio::playMusic(const char* path, bool loop)
+{
+	if (!ready)
+		return;
+	if (musicLoaded && currentMusic == path)
+		return;
+
+	stopMusic();
+	if (ma_sound_init_from_file(&engine, path, MA_SOUND_FLAG_STREAM, NULL, NULL, &music) != MA_SUCCESS)
+	{
+		std::cout << "Could not load " << path << std::endl;
+		return;
+	}
+	musicLoaded = true;
+	currentMusic = path;
+	ma_sound_set_looping(&music, loop ? MA_TRUE : MA_FALSE);
+	ma_sound_set_volume(&music, musicVolume);
+	ma_sound_start(&music);
+}
+
+void Audio::stopMusic()
+{
+	if (!musicLoaded)
+		return;
+
+	ma_sound_uninit(&music);
+	musicLoaded = false;
+	currentMusic.clear();
+}
+
+void Audio::setMusicVolume(float volume)
+{
+	musicVolume = volume;
+	if (musicLoaded)
+		ma_sound_set_volume(&music, musicVolume);
+}
+
+void Audio::stop(Sound sound)
+{
+	if (!ready)
+		return;
+
+	for (int v = 0; v < VOICES; v++)
+		if (voiceLoaded[sound][v] && ma_sound_is_playing(&voices[sound][v]))
+		{
+			ma_sound_stop(&voices[sound][v]);
+			ma_sound_seek_to_pcm_frame(&voices[sound][v], 0);
+		}
 }

@@ -43,6 +43,7 @@ public:
 
 private:
 	void initShaders();
+	void goToMenu();
 
 private:
 	bool bPlay;

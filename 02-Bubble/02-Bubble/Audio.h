@@ -11,7 +11,8 @@ private:
 public:
 	enum Sound { TNT_SET, TNT_FUSE, TNT_EXPLOSION, CLICK, HIT, LEVELUP, POWERUP,
 					CREEPER_DEATH, ENDERMAN_DEATH, ENDERDRAGON_HIT, END, 
-					ZOMBIE_DEATH, NUM_SOUNDS };
+					ZOMBIE_DEATH, CAVE, END_PORTAL, NETHER, THUNDER, CONGRATULATIONS,
+					IGNITE, DOOR, NUM_SOUNDS };
 
 	static Audio& instance()
 	{
@@ -26,6 +27,11 @@ public:
 	void shutdown();
 	void play(Sound sound);
 	void setMasterVolume(float volume);
+	void playMusic(const char* path, bool loop = true);
+	void stopMusic();
+	void setMusicVolume(float volume);
+	void stop(Sound sound);
+
 
 private:
 	bool ready;
