@@ -289,6 +289,12 @@ void Scene::update(int deltaTime)
 			return;
 		}
 		doorOpen = true;
+		if (currentLevel == 0)
+			Audio::instance().play(Audio::DOOR);
+		else if (currentLevel == 1 || currentLevel == 2) 
+			Audio::instance().play(Audio::IGNITE);
+		else if (currentLevel == 3 || currentLevel == 4)
+			Audio::instance().play(Audio::END_PORTAL);
 		int w = DOOR_W[currentLevel], h = DOOR_H[currentLevel];
 		for (int r = 0; r < h; r++)
 			for (int c = 0; c < w; c++)
@@ -458,7 +464,10 @@ void Scene::initShaders()
 
 void Scene::loadLevel(int n)
 {
-	if (n > 0) Audio::instance().play(LEVEL_SOUND[n-1]);
+	if (n > 0) {
+		Audio::instance().stop(Audio::END_PORTAL);
+		Audio::instance().play(LEVEL_SOUND[n - 1]);
+	}
 	Audio::instance().playMusic(LEVEL_MUSIC[n]);
 	doorOpen = false;
 	timeLeft = LEVEL_TIME[n] * 1000;

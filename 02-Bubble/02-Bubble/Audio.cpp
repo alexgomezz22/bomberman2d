@@ -26,7 +26,9 @@ namespace
 		"sounds/end_portal.wav",
 		"sounds/nether.wav",
 		"sounds/thunder.wav",
-		"sounds/congratulations.wav"
+		"sounds/congratulations.wav",
+		"sounds/ignite.wav",
+		"sounds/door_open.wav"
 	};
 
 	ma_engine engine;
@@ -35,7 +37,7 @@ namespace
 	bool engineStarted = false;
 
 	const float SOUND_VOLUMES[Audio::NUM_SOUNDS] = { 0.2f, 0.2f, 0.2f, 0.1f, 1.0f, 0.05f, 0.2f, 0.2f, 0.1f, 0.2f, 0.2f, 0.2f,
-														0.2f, 0.2f, 0.2f, 0.2f, 0.2f };
+														0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f };
 
 	ma_sound music;
 	bool musicLoaded = false;
