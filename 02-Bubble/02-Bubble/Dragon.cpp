@@ -4,7 +4,7 @@
 
 #define DRAGON_SIZE 128 
 #define FIREBALL_SIZE 16
-#define DRAGON_SPEED 0.06f
+#define DRAGON_SPEED 0.04f
 #define FIREBALL_SPEED 0.10f
 
 enum DragonAnims { FLY_LEFT, FLY_RIGHT, HIT_LEFT, HIT_RIGHT };
@@ -87,7 +87,7 @@ void Dragon::update(int deltaTime, glm::vec2 playerPos) {
         else {
             Audio::instance().play(Audio::ENDERDRAGON_HIT);
         }
-        invulnerableTimer = 1500;
+        invulnerableTimer = 1000;
         sprite->changeAnimation(currentDir == 1 ? HIT_RIGHT : HIT_LEFT);
     }
 
