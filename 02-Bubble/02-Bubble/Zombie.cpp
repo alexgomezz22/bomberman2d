@@ -1,11 +1,12 @@
 #include <iostream>
 #include "Zombie.h"
+#include "Audio.h"
 
 #define ZOMBIE_SPEED 1
 #define ZOMBIE_FALL_STEP 4
 #define ZOMBIE_ANIM_SPEED 6
 #define ZOMBIE_FRAME 16          // tamaño de un frame en la hoja
-#define ZOMBIE_SIZE 32           // tamaño en pantalla (igual que Steve)
+#define ZOMBIE_SIZE 32
 #define ZOMBIE_MOVE_EVERY 4      // se mueve 1 px cada 3 frames
 #define HIT_MARGIN_X 4
 #define HIT_MARGIN_Y 2
@@ -127,6 +128,7 @@ void Zombie::update(int deltaTime)
 	// Muerte por explosión
 	if (bombManager->isInExplosion(getHitPos(), getHitSize()))
 	{
+		Audio::instance().play(Audio::ZOMBIE_DEATH);
 		dying = true;
 		dyingTimer = 0;
 		sprite->changeAnimation(dir < 0 ? DIE_LEFT : DIE_RIGHT);
@@ -167,4 +169,11 @@ void Zombie::respawn()
 	dir = -1;
 	sprite->changeAnimation(WALK_LEFT);
 	setPosition(spawnPos);
+}
+void Zombie::kill()
+{
+	if (!isAlive()) return;
+	dying = true;
+	dyingTimer = 0;
+	sprite->changeAnimation(dir < 0 ? DIE_LEFT : DIE_RIGHT);
 }

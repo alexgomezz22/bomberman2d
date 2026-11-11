@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include "Player.h"
 #include "Game.h"
-
+#include "Audio.h"
 
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 96
@@ -36,7 +36,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	bJumping = false;
 	facingLeft = false;
 	bPuttingBomb = false;
-	maxBombs = 1;
+	maxBombs = 2;
 	bBWasDown = false;
 	dead = false;
 	bombTimer = 0;
@@ -56,17 +56,17 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 	// Andar izquierda: fila 5, cols 0-3
 	sprite->setAnimationSpeed(MOVE_LEFT, 8);
-	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.000f, 0.625f));
-	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.125f, 0.625f));
-	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.250f, 0.625f));
 	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.375f, 0.625f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.250f, 0.625f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.125f, 0.625f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.000f, 0.625f));
 
 	// Andar derecha: fila 1, cols 0-3
 	sprite->setAnimationSpeed(MOVE_RIGHT, 8);
-	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.000f, 0.125f));
-	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.125f, 0.125f));
-	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.250f, 0.125f));
 	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.375f, 0.125f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.250f, 0.125f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.125f, 0.125f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.000f, 0.125f));
 
 
 	sprite->setAnimationSpeed(JUMP_RIGHT, 8);
@@ -115,7 +115,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	
 }
 
-void Player::update(int deltaTime)
+void Player::update(int deltaTime, bool godMode)
 {
 	if (dead)
 	{
@@ -142,6 +142,8 @@ void Player::update(int deltaTime)
 
 		if (bombManager->addBomb(col, row))   // false si ya hay una bomba en ese tile
 		{
+			Audio::instance().play(Audio::TNT_SET);
+			Audio::instance().play(Audio::TNT_FUSE);
 			int anim = sprite->animation();
 			bool inAir = bJumping || anim == JUMP_LEFT || anim == JUMP_RIGHT
 				|| anim == FALL_LEFT || anim == FALL_RIGHT;
@@ -177,7 +179,10 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != MOVE_LEFT)
 			sprite->changeAnimation(MOVE_LEFT);
 		posPlayer.x -= 2;
-		if (map->collisionMoveLeft(posPlayer, glm::ivec2(32, 32)) || bombBlocks(posPlayer))
+		glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+		glm::ivec2 hitboxPos = posPlayer;
+		hitboxPos.x += 9;
+		if (map->collisionMoveLeft(hitboxPos, hitboxSize) || bombBlocks(posPlayer))
 		{
 			posPlayer.x += 2;
 			sprite->changeAnimation(STAND_LEFT);
@@ -189,7 +194,10 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != MOVE_RIGHT)
 			sprite->changeAnimation(MOVE_RIGHT);
 		posPlayer.x += 2;
-		if (map->collisionMoveRight(posPlayer, glm::ivec2(32, 32)) || bombBlocks(posPlayer))
+		glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+		glm::ivec2 hitboxPos = posPlayer;
+		hitboxPos.x += 9;
+		if (map->collisionMoveRight(hitboxPos, hitboxSize) || bombBlocks(hitboxPos))
 		{
 			posPlayer.x -= 2;
 			sprite->changeAnimation(STAND_RIGHT);
@@ -219,20 +227,51 @@ void Player::update(int deltaTime)
 		else
 		{
 			int oldY = posPlayer.y;
-			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
-			if (jumpAngle <= 90 && (bombBlocks(posPlayer) || map->collisionMoveUp(posPlayer, glm::ivec2(32,32), &posPlayer.y)))
+			// Calculamos la posición teórica a la que debería ir en este frame
+			int targetY = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
+
+			if (jumpAngle <= 90)
+			{
+				// Fase de subida: el desplazamiento es hacia arriba, no hay problema de gravedad
+				posPlayer.y = targetY;
+				glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+				glm::ivec2 hitboxPos = posPlayer;
+				hitboxPos.x += 9;
+				if (bombBlocks(posPlayer) || map->collisionMoveUp(hitboxPos, hitboxSize, &posPlayer.y))
+				{
+					posPlayer.y = oldY;
+					bJumping = false;
+				}
+			}
+			else // jumpAngle > 90
 			{
 				posPlayer.y = oldY;
-				bJumping = false;
+				bool collided = false;
+
+				while (posPlayer.y < targetY)
+				{
+					int step = (targetY - posPlayer.y > FALL_STEP) ? FALL_STEP : (targetY - posPlayer.y);
+					posPlayer.y += step;
+					glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+					glm::ivec2 hitboxPos = posPlayer;
+					hitboxPos.x += 9;
+					if (map->collisionMoveDown(hitboxPos, hitboxSize, &posPlayer.y) || bombLandDown())
+					{
+						collided = true;
+						break;
+					}
+				}
+				bJumping = !collided;
 			}
-			if (jumpAngle > 90)
-				bJumping = !(map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y) || bombLandDown());
 		}
 	}
 	else
 	{	// The player isn't in the middle of a jump
 		posPlayer.y += FALL_STEP;
-		bool onGround = map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y);
+		glm::ivec2 hitboxSize = glm::ivec2(18, 32);
+		glm::ivec2 hitboxPos = posPlayer;
+		hitboxPos.x += 9;
+		bool onGround = map->collisionMoveDown(hitboxPos, hitboxSize, &posPlayer.y);
 		if (!onGround)
 			onGround = bombLandDown();
 
@@ -258,7 +297,7 @@ void Player::update(int deltaTime)
 	}
 
 	glm::ivec2 hitPos(posPlayer.x + HIT_OFFSET_X, posPlayer.y + HIT_OFFSET_Y);
-	if (bombManager->isInExplosion(hitPos, glm::ivec2(HIT_W, HIT_H)))
+	if (bombManager->isInExplosion(hitPos, glm::ivec2(HIT_W, HIT_H)) && !godMode)
 		die();
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
@@ -308,6 +347,7 @@ bool Player::bombLandDown()
 
 void Player::die()
 {
+	Audio::instance().play(Audio::HIT);
 	dead = true;
 	deathTimer = 0;
 	bPuttingBomb = false;

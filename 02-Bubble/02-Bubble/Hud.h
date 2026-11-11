@@ -13,7 +13,8 @@ public:
 	~Hud();
 
 	void init(ShaderProgram& program);
-	void render(int lives, int enemies, int maxBombs);
+	void render(int lives, int enemies, int maxBombs, int range, int seconds);
+	void renderBossBar(int currentHP, ShaderProgram& program);
 
 private:
 	Sprite* makeCell(ShaderProgram& program, int nAnims);
@@ -26,6 +27,21 @@ private:
 	Sprite* enemyUnits;
 	Sprite* bombIcon;
 	Sprite* bombDigit;
+
+	Sprite* timeMin;
+	Sprite* timeSecTens;
+	Sprite* timeSecUnits;
+	Sprite* colon;
+
+	Sprite* flameIcon;
+	Sprite* rangeDigit;
+
+	Sprite* bossBar;
+
+	Sprite* bossBarBg;
+	Sprite* bossBarFill[6];
+
+
 };
 
 #endif

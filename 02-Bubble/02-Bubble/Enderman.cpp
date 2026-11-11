@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Enderman.h"
+#include "Audio.h"
 
 #define ENDER_SPEED 1
 #define ENDER_FALL_STEP 4
@@ -86,7 +87,7 @@ void Enderman::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->changeAnimation(WALK_LEFT);
 }
 
-// ¿Cabe el enderman con la esquina superior izquierda en (x, y)?
+// Cabe el enderman con la esquina superior izquierda en (x, y)?
 // Sin tiles sólidos dentro y con suelo bajo los dos pies.
 bool Enderman::canStandAt(int x, int y)
 {
@@ -164,6 +165,7 @@ void Enderman::update(int deltaTime)
 	// Muerte por explosión
 	if (bombManager->isInExplosion(getHitPos(), getHitSize()))
 	{
+		Audio::instance().play(Audio::ENDERMAN_DEATH);
 		dying = true;
 		dyingTimer = 0;
 		sprite->changeAnimation(dir < 0 ? DIE_LEFT : DIE_RIGHT);
@@ -205,4 +207,12 @@ void Enderman::respawn()
 	dir = -1;
 	sprite->changeAnimation(WALK_LEFT);
 	setPosition(spawnPos);
+}
+
+void Enderman::kill()
+{
+	if (!isAlive()) return;
+	dying = true;
+	dyingTimer = 0;
+	sprite->changeAnimation(dir < 0 ? DIE_LEFT : DIE_RIGHT);
 }
